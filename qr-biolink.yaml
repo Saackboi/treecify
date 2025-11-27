@@ -1,0 +1,60 @@
+name: qr-biolink
+services:
+  qr-app:
+    # La Imagen:
+    image: sackboi/qr-saas:v1 
+    container_name: qr-biolink
+    restart: unless-stopped
+    
+    # 2. Recursos (Opcional pero recomendado para no saturar el server)
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    
+    # 3. Puertos
+    ports:
+      - target: 3001
+        published: "3001" # Puedes cambiar este número si el 3001 ya está ocupado en tu server
+        protocol: tcp
+        
+    # 4. Volúmenes (Persistencia de datos al estilo CasaOS)
+    volumes:
+      - type: bind
+        source: /DATA/AppData/qr-biolink/links.db
+        target: /app/links.db
+        
+    environment:
+      - NODE_ENV=production
+
+    # 5. Configuración visual para los ajustes DENTRO de CasaOS
+    x-casaos:
+      ports:
+        - container: "3001"
+          description:
+            en_US: Panel de Administración y Vista Pública
+      volumes:
+        - container: /app/links.db
+          description:
+            en_US: Base de datos SQLite persistente
+
+# 6. Metadatos GLOBALES para la "Tienda" de CasaOS (El icono del Dashboard)
+x-casaos:
+  architectures:
+    - amd64
+    - arm
+    - arm64
+  author: sackboi
+  category: Self-hosted
+  description:
+    en_US: >
+      Micro-SaaS para generar páginas de Bio-Link y códigos QR dinámicos para negocios locales.
+      Incluye panel de administración y vista móvil optimizada.
+  developer: Koji
+  icon: https://i.postimg.cc/qv5Djs0Z/treecify-icon.png
+  main: qr-app
+  port_map: "3001" # Debe coincidir con el puerto 'published' de arriba
+  scheme: http
+  title:
+    custom: Treecify
+    en_us: Treecify

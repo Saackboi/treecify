@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  qr-app:
+    # 1. Construcción: Le dice "Busca el Dockerfile en esta misma carpeta (.)"
+    build: . 
+    
+    # 2. Nombre del contenedor (para identificarlo fácil con 'docker ps')
+    container_name: qr-saas-container
+    
+    # 3. Política de Reinicio: Si falla o se reinicia el servidor, revive solo.
+    restart: always
+    
+    # 4. Puertos: "El puerto 80 del servidor va al 3001 de la app"
+    ports:
+      - "2465:3001"
+      
+    # 5. Persistencia: "Guarda el archivo links.db en un volumen seguro"
+    volumes:
+      - ./server/db_created/links.db:/app/links.db
+    
+    # 6. Variables de entorno (Opcional, útil a futuro)
+    environment:
+      - NODE_ENV=production
+
+# Definimos el volumen persistente fuera del contenedor
+volumes:
+  qr-data:
