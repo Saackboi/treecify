@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import PreviewPanel from './components/RightPanel/PreviewPanel'
 import FormPanel from './components/LeftPanel/FormPanel'
+import swal from './utils/alerts' //esta es una clase personalizada
 
 function App() {
 
@@ -34,7 +35,12 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!title || !url) return alert("Por favor llena ambos campos")
+    if (!title || !url) return swal.fire({
+      title: 'Aviso',
+      icon: 'error',
+      text: 'Faltan datos por llenar.',
+      toast: true,
+    })
 
     setIsCreating(true) //Activamos el estado de carga
 
@@ -66,26 +72,49 @@ function App() {
   }
 
   // Función para eliminar
-  const handleDelete = async (id) => {
+  const handleDelete = (id) => {
     // 1. Preguntar por seguridad
-    if (!window.confirm("¿Seguro que quieres eliminar este link?")) return;
 
-    try {
-      // 2. Avisar al servidor
-      const response = await fetch(`/api/links/${id}`, {
-        method: 'DELETE',
-      });
-      const data = await response.json();
+    swal.fire({
+      title: "¿Seguro que quieres eliminar este link?",
+      text: "No podrás recuperarlo!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, eliminar!",
+      cancelButtonText: 'Cancelar',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        swal.fire({
+          title: "Eliminado!",
+          text: "El enlace se ha eliminado.",
+          icon: "success",
+          showConfirmButton: false,
+          toast: true,
+          timer: 1100,
+        });
 
-      if (data.success) {
-        // 3. Actualizar la UI filtrando el link eliminado
-        // "Dame todos los links cuyo ID NO SEA el que acabo de borrar"
-        const newLinks = links.filter(link => link.id !== id);
-        setLinks(newLinks);
+        try {
+          // 2. Avisar al servidor
+          const response = await fetch(`/api/links/${id}`, {
+            method: 'DELETE',
+          });
+          const data = await response.json();
+
+          if (data.success) {
+            // 3. Actualizar la UI filtrando el link eliminado
+            // "Dame todos los links cuyo ID NO SEA el que acabo de borrar"
+            const newLinks = links.filter(link => link.id !== id);
+            setLinks(newLinks);
+
+            swal.fire
+          }
+        } catch (error) {
+          console.error("Error al eliminar:", error);
+        }
       }
-    } catch (error) {
-      console.error("Error al eliminar:", error);
-    }
+    });
   };
 
   return (
