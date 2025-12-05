@@ -17,7 +17,7 @@ services:
       
     # 5. Persistencia: "Guarda el archivo links.db en un volumen seguro"
     volumes:
-      - ./server/db_created/links.db:/app/links.db
+      - ./links.db:/app/links.db
     
     # 6. Variables de entorno (Opcional, útil a futuro)
     environment:

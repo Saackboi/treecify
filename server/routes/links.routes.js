@@ -2,46 +2,50 @@
 
 import express from 'express'
 import db from '../db.js'
+import { verifyToken } from '../middleware/auth.middleware.js';
 
 const router = express.Router()
 
 //RUTAS RELATIVAS A "/api/links"
 
 // 1. Obtener links (GET)
-router.get('/', (req, res) => {
-    const sql = "SELECT * FROM links ORDER BY id DESC"
+router.get('/', verifyToken, (req, res) => {
+    const userId = req.user.id;
+    const sql = "SELECT * FROM links WHERE user_id = ? ORDER BY id DESC"
 
-    db.all(sql, [], (err, rows) => {
+    db.all(sql, [userId], (err, rows) => {
         if (err) {
-            return res.status(500).json({success: false, error: err.message})
+            return res.status(500).json({ success: false, error: err.message })
         }
-        res.json({success: true, data: rows})
+        res.json({ success: true, data: rows })
     })
 });
 
 // 2. Crear nuevo link (POST)
-router.post('/', (req, res) => {
+router.post('/', verifyToken, (req, res) => {
     const { title, url } = req.body;
+    const userId = req.user.id;
 
     // Validación básica
     if (!title || !url) {
         return res.status(400).json({ success: false, message: "Faltan datos" });
     }
 
-    const sql = "INSERT INTO links (title, url) VALUES (?, ?)"
-    const params = [title, url]
+    const sql = "INSERT INTO links (user_id, title, url) VALUES (?, ?, ?)"
+    const params = [userId, title, url]
 
     //USAMOS FUNCTION() CLÁSICA PARA TENER ACCESO A 'this.lastID'
-    db.run(sql, params, function(err) {
+    db.run(sql, params, function (err) {
         if (err) {
-            return res.status(500).json({success: false, error: err.message})
+            return res.status(500).json({ success: false, error: err.message })
         }
 
         //Devolvemos el objeto creado para que React lo pinte
-        res.status(201).json ({
+        res.status(201).json({
             success: true,
             data: {
                 id: this.lastID,
+                user_id: userId,
                 title,
                 url,
                 clicks: 0
@@ -51,16 +55,18 @@ router.post('/', (req, res) => {
 });
 
 // 3. DELETE: Eliminar un link por su ID
-router.delete('/:id', (req, res) => {
+router.delete('/:id', verifyToken, (req, res) => {
     const { id } = req.params; // Capturamos el ID de la URL
 
-    const sql = "DELETE FROM links WHERE id = ?";
-    
-    db.run(sql, id, function(err) {
+    const userId = req.user.id;
+
+    const sql = "DELETE FROM links WHERE id = ? AND user_id = ?";
+
+    db.run(sql, [id, userId], function (err) {
         if (err) {
             return res.status(500).json({ success: false, error: err.message });
         }
-        
+
         // this.changes nos dice cuántas filas se borraron
         if (this.changes === 0) {
             return res.status(404).json({ success: false, message: "Link no encontrado" });

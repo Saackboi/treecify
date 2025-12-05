@@ -6,14 +6,14 @@ import path from 'path';
 // process.cwd() obtiene la carpeta raíz donde ejecutas el comando "node"
 const dbPath = path.resolve(process.cwd(), 'links.db');
 
-console.log(`🗄️ Intentando crear base de datos en: ${dbPath}`);
+console.log(` Intentando crear base de datos en: ${dbPath}`);
 
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
-        console.error("❌ ERROR FATAL: No se pudo abrir la base de datos.");
+        console.error(" ERROR FATAL: No se pudo abrir la base de datos.");
         console.error("Causa:", err.message);
     } else {
-        console.log("✅ Conexión exitosa a SQLite.");
+        console.log(" Conexión exitosa a SQLite.");
     }
 });
 
@@ -23,6 +23,7 @@ db.serialize(() => {
     db.run(`
         CREATE TABLE IF NOT EXISTS links (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
             title TEXT NOT NULL,
             url TEXT NOT NULL,
             clicks INTEGER DEFAULT 0,
@@ -35,6 +36,21 @@ db.serialize(() => {
             console.log(" Tabla 'links' lista.");
         }
     });
+
+    db.run(`
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+        `, (err) => {
+        if (err) {
+            console.error("Error creando tabla:", err);
+        } else {
+            console.log(" Tabla 'users' lista.");
+        }
+    })
 });
 
 export default db;

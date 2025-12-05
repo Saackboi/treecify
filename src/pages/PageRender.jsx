@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react"
+import { useDashboard } from "../hooks/useDashboard";
 
 export default function PageRender() {
 
-    const [links, setLinks] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const { links, loading } = useDashboard()
 
     // 1. Cargar los mismos datos que el admin
     useEffect(() => {
@@ -41,7 +41,7 @@ export default function PageRender() {
                 </div >
                 <h2 className="text-2xl font-bold text-slate-800 text-center mb-2">Agencia Koji</h2>
                 <p className="text-slate-500 mb-8 text-center max-w-xs">
-                    ¡Hola! Aquí tienes nuestros enlaces directos para proyectos y servicios.
+                    ¡Hola! Esto es un ejemplo de presentación.
                 </p>
 
                 {/* Renderizado de Links */}
@@ -61,7 +61,7 @@ export default function PageRender() {
 
                 {/* Footer Branding */}
                 <div className="mt-auto pt-8 opacity-60">
-                    <p className="text-[10px] text-slate-400 uppercase tracking-widest">Creado con QR-Bio</p>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-widest">Creado con Treecify</p>
                 </div>
 
             </div >

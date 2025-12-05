@@ -23,11 +23,11 @@ export default function PreviewPanel({ links }) {
 
                     {/* Perfil del Usuario */}
                     <div className="w-24 h-24 bg-indigo-100 rounded-full mb-4 border-4 border-white shadow-md flex items-center justify-center text-4xl animate-bounce-slow" >
-                        ⛩
+                        🤠
                     </div >
-                    <h2 className="text-xl font-bold text-slate-800 text-center">Agencia Koji</h2>
+                    <h2 className="text-xl font-bold text-slate-800 text-center">Usuario</h2>
                     <p className="text-sm text-slate-500 mb-8 text-center leading-relaxed">
-                        ¡Hola! Aquí tienes nuestros enlaces directos para proyectos y servicios.
+                        ¡Hola! Aquí tienes un ejemplo de página.
                     </p>
 
                     {/* Renderizado de Links */}

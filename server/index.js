@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import path from 'path';
 import linksRouter from './routes/links.routes.js'
+import authRouter from './routes/auth.route.js'
 
 const app = express();
 const PORT = 3001; // Correremos el backend en el puerto 3001
@@ -21,6 +22,7 @@ app.use(express.json());
 
 // --- RUTAS (API Endpoints) ---
 app.use('/api/links', linksRouter) // Todo lo que empiece por /api/links lo va a manejar este archivo
+app.use('/api/auth', authRouter) // Todo lo que empiece por /api/auth lo va a manejar este archivo
 
 // --- SERVIDOR FRONTEND ---
 // DECIRLE A EXPRESS DONDE ESTA LA CARPETA 'dist'
