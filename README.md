@@ -1,6 +1,6 @@
 # 🌳 Treecify
 
-![Version](https://img.shields.io/badge/version-1.7.0-indigo.svg) ![Stack](https://img.shields.io/badge/stack-MERN_Lite-green.svg) ![Docker](https://img.shields.io/badge/docker-ready-2496ED.svg)
+![Version](https://img.shields.io/badge/version-2.3.0-indigo.svg) ![Stack](https://img.shields.io/badge/stack-MERN_Lite-green.svg) ![Docker](https://img.shields.io/badge/docker-ready-2496ED.svg)
 
 **Treecify** es una plataforma Micro-SaaS diseñada para que negocios locales y creadores gestionen su identidad digital. Permite desplegar una página de aterrizaje ("Link in Bio") ultra-rápida y generar códigos QR dinámicos para compartirla en el mundo físico.
 

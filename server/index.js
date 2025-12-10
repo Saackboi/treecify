@@ -1,4 +1,4 @@
-
+import 'dotenv/config'
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -7,7 +7,7 @@ import linksRouter from './routes/links.routes.js'
 import authRouter from './routes/auth.route.js'
 
 const app = express();
-const PORT = 3001; // Correremos el backend en el puerto 3001
+const PORT = process.env.PORT; // Corremos el backend 
 
 // --- MIDDLEWARE ---
 // Habilitar CORS para desarrollo (ajustar en producción)

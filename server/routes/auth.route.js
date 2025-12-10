@@ -6,10 +6,10 @@ import jwt from 'jsonwebtoken';
 
 const router = express.Router()
 
-const SECRET_KEY = 'clave_secreta2' //PARA DEV  
+const SECRET_KEY = process.env.JWT_SECRET
 
 router.post('/register', async (req, res) => {
-    const { email, password } = req.body;
+    const { username, email, password } = req.body;
 
     if (!email || !password) {
         return res.status(400).json({ success: false, message: "Faltan datos." });
@@ -18,9 +18,9 @@ router.post('/register', async (req, res) => {
     //Encriptar la contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const sql = "INSERT INTO users (email, password) VALUES (?, ?)";
+    const sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
 
-    db.run(sql, [email, hashedPassword], function (err) {
+    db.run(sql, [username, email, hashedPassword], function (err) {
         if (err) {
             // El error 19 se da por dato duplicado
             if (err.errno === 19) {
@@ -32,7 +32,7 @@ router.post('/register', async (req, res) => {
         //Generamos token automáticamente para que entre directo
         const token = jwt.sign({ id: this.lastID, email }, SECRET_KEY, { expiresIn: '24h' })
 
-        res.status(201).json({ success: true, token, user: { id: this.lastID, email } });
+        res.status(201).json({ success: true, token, user: { id: this.lastID, username: username, email } });
     })
 
 })
@@ -60,7 +60,7 @@ router.post('/login', (req, res) => {
         // Si todo ok, damos el Token
         const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '24h' });
 
-        res.json({ success: true, token, user: { id: user.id, email: user.email } });
+        res.json({ success: true, token, user: { id: user.id, username: user.username, email: user.email } });
     });
 });
 

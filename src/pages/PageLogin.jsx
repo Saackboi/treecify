@@ -42,10 +42,13 @@ export default function PageLogin() {
                 // Guardamos datos del usuario para mostrar nombre/email luego
                 localStorage.setItem('user', JSON.stringify(data.user));
 
+                //
+                const username = JSON.parse(JSON.stringify(data.user)).username
+
                 // Alerta bonita
                 await MySwal.fire({
                     icon: 'success',
-                    title: '¡Hola de nuevo!',
+                    title: '¡Hola de nuevo, ' + username + '!',
                     text: 'Has iniciado sesión correctamente.',
                     timer: 1500,
                     showConfirmButton: false

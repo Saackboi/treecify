@@ -1,20 +1,31 @@
 import { useState, useEffect } from "react"
 import { useDashboard } from "../hooks/useDashboard";
+import { useParams } from "react-router-dom";
 
 export default function PageRender() {
 
-    const { links, loading } = useDashboard()
+    const { username } = useParams()
+    const [links, setLinks] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
 
-    // 1. Cargar los mismos datos que el admin
     useEffect(() => {
-        fetch('/api/links')
-            .then(res => res.json())
+        // Llamamos a la API pública
+        fetch(`/api/links/public/${username}`)
+            .then(res => {
+                if (!res.ok) throw new Error("Usuario no encontrado");
+                return res.json();
+            })
             .then(data => {
-                setLinks(data.data);
+                setLinks(data.data || []);
                 setLoading(false);
             })
-            .catch(err => console.error(err));
-    }, []);
+            .catch(err => {
+                console.error(err);
+                setError(true);
+                setLoading(false);
+            });
+    }, [username]);
 
     // Asegura que el link maneje el protocolo http
     const ensureProtocol = (url) => {
@@ -29,7 +40,7 @@ export default function PageRender() {
         <span className="size-3 animate-ping rounded-full bg-indigo-600 [animation-delay:0.2s] dark:bg-indigo-300"></span>
         <span className="size-3 animate-ping rounded-full bg-indigo-600 [animation-delay:0.4s] dark:bg-indigo-300"></span>
     </div>;
-
+    if (error) return <div className="text-center mt-10 text-red-500">Usuario no encontrado 😢</div>;
     return (
         <>
             {/* Vista movil */}
@@ -39,7 +50,7 @@ export default function PageRender() {
                 < div className="w-24 h-24 bg-indigo-100 rounded-full mb-4 border-4 border-white shadow-md flex items-center justify-center text-4xl animate-bounce-slow" >
                     ⛩
                 </div >
-                <h2 className="text-2xl font-bold text-slate-800 text-center mb-2">Agencia Koji</h2>
+                <h2 className="text-2xl font-bold text-slate-800 text-center mb-2">@{username}</h2>
                 <p className="text-slate-500 mb-8 text-center max-w-xs">
                     ¡Hola! Esto es un ejemplo de presentación.
                 </p>

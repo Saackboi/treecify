@@ -8,6 +8,24 @@ const router = express.Router()
 
 //RUTAS RELATIVAS A "/api/links"
 
+// GET PÚBLICO: Obtener links por nombre de usuario
+// Ruta: /api/links/public/:username
+router.get('/public/:username', (req, res) => {
+    const { username } = req.params;
+
+    // 1. Primero buscamos el ID del usuario basado en su nombre
+    db.get("SELECT id FROM users WHERE username = ?", [username], (err, user) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+
+        // 2. Si existe, buscamos sus links
+        db.all("SELECT * FROM links WHERE user_id = ? ORDER BY id DESC", [user.id], (err, rows) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ success: true, data: rows, username: username });
+        });
+    });
+});
+
 // 1. Obtener links (GET)
 router.get('/', verifyToken, (req, res) => {
     const userId = req.user.id;

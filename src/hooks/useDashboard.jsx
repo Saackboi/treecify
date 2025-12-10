@@ -9,7 +9,7 @@ export function useDashboard() {
     const [loading, setLoading] = useState(true);
 
     // Obtenemos el token al inicio
-    const token = localStorage.getItem('token');
+    let token = localStorage.getItem('token');
 
     // --- 1. LÓGICA DE LOGOUT ---
     const handleLogout = useCallback(() => {
@@ -21,6 +21,7 @@ export function useDashboard() {
     // --- 2. LÓGICA DE CARGA (GET) ---
     // Usamos useCallback para que no se re-cree infinitamente en el useEffect
     const loadLinks = useCallback(async () => {
+        let token = localStorage.getItem('token');
         if (!token) {
             navigate('/login');
             return;
@@ -55,8 +56,16 @@ export function useDashboard() {
         }
     }, [token, navigate, handleLogout]);
 
+
+    // Ejecutamos la carga inicial
+    useEffect(() => {
+        loadLinks();
+    }, [loadLinks]);
+
+
     // --- 3. LÓGICA DE CREAR (POST) ---
     const createLink = async (title, url) => {
+        let token = localStorage.getItem('token');
         if (!token) return handleLogout();
 
         // Retornaremos 'true' si fue exitoso para que el UI limpie los inputs
@@ -104,6 +113,7 @@ export function useDashboard() {
 
     // --- 4. LÓGICA DE BORRAR (DELETE) ---
     const deleteLink = async (id) => {
+        let token = localStorage.getItem('token');
         if (!token) return handleLogout();
 
         // Primero la confirmación visual
@@ -156,11 +166,6 @@ export function useDashboard() {
             }
         }
     };
-
-    // Ejecutamos la carga inicial
-    useEffect(() => {
-        loadLinks();
-    }, [loadLinks]);
 
     // Retornamos todo lo que el componente App necesita
     return {

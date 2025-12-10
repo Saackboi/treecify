@@ -2,7 +2,12 @@ import QRGen from "./QRGen";
 
 
 export default function FormInputs({ title, setTitle, url, setUrl, handleSubmit, isCreating }) {
-    const origin = window.location.origin; // Esto obtiene "http://192.168.1.X:3001" automáticamente
+    const origin = window.location.origin;
+    const user = JSON.parse(localStorage.getItem('user'));
+    const username = user?.username || 'usuario';
+
+    // Genera la URL dinámica
+    const profileUrl = `${window.location.origin}/u/${username}`;
     return (
         <>
 
@@ -13,7 +18,7 @@ export default function FormInputs({ title, setTitle, url, setUrl, handleSubmit,
             </header >
 
             {/* QR Principal */}
-            <QRGen url={`${origin}/ver`} />
+            <QRGen url={`${profileUrl}`} />
 
             {/* Formulario (Visual por ahora) */}
             <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 mb-8" >

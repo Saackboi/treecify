@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom'; // Usamos Link para navegación interna SPA
 import MySwal from '../utils/alerts'; // Tu sistema de alertas personalizado
 
@@ -7,8 +7,26 @@ export default function PageRegister() {
 
     const navigate = useNavigate();
 
+    //AVISO PARA DEMO
+    useEffect(() => {
+        MySwal.fire({
+            title: 'Aplicación de Demostración',
+            html: `
+                <p>Esta instancia es una prueba de la aplicación.</p>
+                <br/>
+                <p>Por tu seguridad, <b>NO utilices contraseñas reales</b> que uses en otros sitios (como Gmail, Facebook, o Bancos).</p>
+                <p>Puedes utilizar datos ficticios o contraseñas simples (ej: 123456).</p>
+            `,
+            icon: 'info',
+            confirmButtonText: 'Entendido, usaré datos de prueba',
+            allowOutsideClick: false,
+            allowEscapeKey: false
+        });
+    }, []);
+
     // 1. Estado para guardar los datos del formulario
     const [formData, setFormData] = useState({
+        username: '',
         email: '',
         password: '',
         confirmPassword: ''
@@ -47,6 +65,7 @@ export default function PageRegister() {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
+                    username: formData.username,
                     email: formData.email,
                     password: formData.password
                 })
@@ -86,15 +105,31 @@ export default function PageRegister() {
         }
     };
 
+
     return (
         <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                 <img src="./treecify_icon.svg" alt="Your Company" className="mx-auto h-10 w-auto" />
                 <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">Crear cuenta</h2>
             </div>
-
             <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    <div>
+                        <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">Usuario</label>
+                        <div className="mt-2">
+                            <input
+                                placeholder='Ingresa un nombre de usuario'
+                                id="username"
+                                type="text"
+                                name="username"
+                                value={formData.username}
+                                onChange={handleChange}
+                                required
+                                autoComplete="username"
+                                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
+                        </div>
+
+                    </div>
                     <div>
                         <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">Correo electrónico</label>
                         <div className="mt-2">
