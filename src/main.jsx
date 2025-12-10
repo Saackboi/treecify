@@ -21,7 +21,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/" element={<App />}></Route>
 
         {/* RUTA DE LA VISTA PUBLICA */}
-        <Route path="/ver" element={<PageRender />}></Route>
+        <Route path="/u/:username" element={<PageRender />}></Route>
       </Routes>
     </BrowserRouter>
   </StrictMode>,

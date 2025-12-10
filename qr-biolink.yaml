@@ -26,6 +26,7 @@ services:
         
     environment:
       - NODE_ENV=production
+      - JWT_SECRET=cambia_esta_clave_porfavor2334
 
     # 5. Configuración visual para los ajustes DENTRO de CasaOS
     x-casaos:

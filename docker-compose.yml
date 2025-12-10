@@ -19,9 +19,10 @@ services:
     volumes:
       - ./links.db:/app/links.db
     
-    # 6. Variables de entorno (Opcional, útil a futuro)
+    # 6. Variables de entorno
     environment:
       - NODE_ENV=production
+      - JWT_SECRET=cambia_esta_clave_porfavor2334
 
 # Definimos el volumen persistente fuera del contenedor
 volumes:
