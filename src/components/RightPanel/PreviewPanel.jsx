@@ -1,5 +1,7 @@
 
-export default function PreviewPanel({ links }) {
+export default function PreviewPanel({ profile, links }) {
+
+    console.log("👀 DATOS EN PREVIEW:", profile);
     // Asegura que el link maneje el protocolo http
     const ensureProtocol = (url) => {
         if (!url) return '#'
@@ -8,7 +10,12 @@ export default function PreviewPanel({ links }) {
         return url.startsWith('http') ? url : `https://${url}`
     }
 
-    const username = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).username : null
+    // DATOS DEL USUARIO
+    const username = profile?.username || 'Usuario';
+    const bio = profile?.bio || "¡Hola! Aquí tienes un ejemplo de página.";
+    const bgColor = profile?.bg_color || '#f8fafc';
+    const btnColor = profile?.btn_color || '#ffffff';
+    const textColor = profile?.text_color || '#334155';
 
     return (
         /* --- DERECHA: PREVIEW EN VIVO (Móvil) --- */
@@ -21,7 +28,7 @@ export default function PreviewPanel({ links }) {
                 <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-6 bg-slate-800 rounded-b-xl z-20" ></div >
 
                 {/* Pantalla interna del celular */}
-                <div className="h-full w-full overflow-y-auto bg-slate-50 pt-12 pb-8 px-5 flex flex-col items-center scrollbar-hide" >
+                <div className="h-full w-full overflow-y-auto pt-12 pb-8 px-5 flex flex-col items-center scrollbar-hide" style={{ backgroundColor: bgColor }}>
 
                     {/* Perfil del Usuario */}
                     <div className="w-24 h-24 bg-indigo-100 rounded-full mb-4 border-4 border-white shadow-md flex items-center justify-center text-4xl animate-bounce-slow" >
@@ -29,7 +36,7 @@ export default function PreviewPanel({ links }) {
                     </div >
                     <h2 className="text-xl font-bold text-slate-800 text-center">{username}</h2>
                     <p className="text-sm text-slate-500 mb-8 text-center leading-relaxed">
-                        ¡Hola! Aquí tienes un ejemplo de página.
+                        {bio}
                     </p>
 
                     {/* Renderizado de Links */}
@@ -40,6 +47,7 @@ export default function PreviewPanel({ links }) {
                                 href={ensureProtocol(link.url)}
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                style={{ backgroundColor: btnColor, color: textColor }}
                                 className="block w-full bg-white hover:bg-indigo-600 hover:text-white text-slate-700 font-semibold py-4 px-6 rounded-xl shadow-sm border border-slate-200 text-center transition-all duration-300 transform hover:scale-105"
                             >
                                 {link.title}
@@ -49,7 +57,7 @@ export default function PreviewPanel({ links }) {
 
                     {/* Footer Branding */}
                     <div className="mt-auto pt-8 opacity-60">
-                        <p className="text-[10px] text-slate-400 uppercase tracking-widest">Powered by Koji</p>
+                        <p className="text-[10px] text-slate-400 uppercase tracking-widest">Powered by Treecify</p>
                     </div>
 
                 </div >

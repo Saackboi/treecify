@@ -11,16 +11,10 @@ export default function FormInputs({ title, setTitle, url, setUrl, handleSubmit,
     return (
         <>
 
-            {/* Header */}
-            <header className="mb-8" >
-                <h1 className="text-4xl font-bold text-indigo-600 mb-2 tracking-tight">Treecify</h1>
-                <p className="text-slate-500 text-lg">Crea tu identidad digital en segundos.</p>
-            </header >
-
             {/* QR Principal */}
             <QRGen url={`${profileUrl}`} />
 
-            {/* Formulario (Visual por ahora) */}
+            {/* Formulario */}
             <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 mb-8" >
                 <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Agregar Nuevo Link</h3>
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -55,15 +49,6 @@ export default function FormInputs({ title, setTitle, url, setUrl, handleSubmit,
                         </button>
                     </div>
                 </form>
-
-                {/* Alerta de desarrollo*/}
-                <div className="fixed inset-x-0 bottom-0 z-auto p-4">
-                    <div className="rounded border border-gray-200 bg-gray-100 px-4 py-2 text-gray-900">
-                        <p className="text-center font-medium">
-                            Demo Version
-                        </p>
-                    </div>
-                </div>
             </div >
         </>
     )

@@ -1,13 +1,14 @@
+
 import FormInputs from './FormInputs'
 import LinksTab from './LinksTab'
 
 export default function FormPanel({ links, loading, title, setTitle, url, setUrl, handleSubmit, handleDelete, isCreating }) {
     return (
         /* --- IZQUIERDA: PANEL DE ADMINISTRACIÓN --- */
-        <section className="w-full md:w-1/2 p-8 flex flex-col justify-center bg-white z-10 shadow-xl">
-            <div className="max-w-md mx-auto w-full">
+        <section className="w-full h-full p-8 flex flex-col items-center">
+            <div className="w-full p-7">
 
-                {/* Header y Formulario */}
+                {/*Formulario */}
                 <FormInputs
                     title={title}
                     setTitle={setTitle}
@@ -18,7 +19,6 @@ export default function FormPanel({ links, loading, title, setTitle, url, setUrl
 
                 {/* Lista de Links Actuales */}
                 <LinksTab links={links} loading={loading} handleDelete={handleDelete} />
-
             </div>
         </section>
     )

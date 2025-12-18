@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import path from 'path';
 import linksRouter from './routes/links.routes.js'
 import authRouter from './routes/auth.route.js'
+import userRouter from './routes/user.route.js'
 
 const app = express();
 const PORT = process.env.PORT; // Corremos el backend 
@@ -23,6 +24,7 @@ app.use(express.json());
 // --- RUTAS (API Endpoints) ---
 app.use('/api/links', linksRouter) // Todo lo que empiece por /api/links lo va a manejar este archivo
 app.use('/api/auth', authRouter) // Todo lo que empiece por /api/auth lo va a manejar este archivo
+app.use('/api/user', userRouter) // Todo lo que empiece por /api/user lo va a manejar este archivo
 
 // --- SERVIDOR FRONTEND ---
 // DECIRLE A EXPRESS DONDE ESTA LA CARPETA 'dist'

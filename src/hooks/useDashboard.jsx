@@ -7,6 +7,13 @@ export function useDashboard() {
     const navigate = useNavigate();
     const [links, setLinks] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [profile, setProfile] = useState({
+        username: '',
+        bio: '',
+        bg_color: '#f3f4f6',
+        btn_color: '#4f46e5',
+        text_color: '#ffffff'
+    });
 
     // Obtenemos el token al inicio
     let token = localStorage.getItem('token');
@@ -19,48 +26,50 @@ export function useDashboard() {
     }, [navigate]);
 
     // --- 2. LÓGICA DE CARGA (GET) ---
-    // Usamos useCallback para que no se re-cree infinitamente en el useEffect
-    const loadLinks = useCallback(async () => {
-        let token = localStorage.getItem('token');
+    // --- CARGA DE DATOS (LINKS + PERFIL) ---
+    const loadData = useCallback(async () => {
         if (!token) {
-            navigate('/login');
+            handleLogout();
             return;
         }
 
         try {
-            const res = await fetch('/api/links', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            const headers = { 'Authorization': `Bearer ${token}` };
 
-            // Si el token expiró (401), cerramos sesión
-            if (res.status === 401) {
+            // Hacemos las dos peticiones en paralelo (más rápido)
+            const [resLinks, resUser] = await Promise.all([
+                fetch('/api/links', { headers }),
+                fetch('/api/user/me', { headers })
+            ]);
+
+            if (resLinks.status === 401 || resUser.status === 401) {
                 handleLogout();
                 return;
             }
 
-            if (!res.ok) throw new Error("Error al conectar con el servidor");
+            const dataLinks = await resLinks.json();
+            const dataUser = await resUser.json();
 
-            const data = await res.json();
-            // Aseguramos que sea un array
-            setLinks(Array.isArray(data.data) ? data.data : []);
+            if (dataLinks.success) setLinks(dataLinks.data);
+
+            // 2. GUARDAMOS EL PERFIL EN EL ESTADO
+            if (dataUser.success) {
+                setProfile(prev => ({ ...prev, ...dataUser.data }));
+            }
 
         } catch (error) {
             console.error(error);
-            MySwal.fire("Error", "No pudimos cargar tus links.", "error");
+            MySwal.fire("Error", "Error cargando datos", "error");
         } finally {
             setLoading(false);
         }
-    }, [token, navigate, handleLogout]);
+    }, [token, handleLogout]);
 
 
     // Ejecutamos la carga inicial
     useEffect(() => {
-        loadLinks();
-    }, [loadLinks]);
+        loadData();
+    }, [loadData]);
 
 
     // --- 3. LÓGICA DE CREAR (POST) ---
@@ -167,12 +176,38 @@ export function useDashboard() {
         }
     };
 
+    // ACTUALIZAR CONFIGURACION DE PERFIL DEL USUARIO
+    const updateProfile = async (newProfileData) => {
+        const token = localStorage.getItem('token');
+        if (!token) return handleLogout();
+
+        // Actualizamos estado local inmediatamente
+        setProfile(newProfileData);
+
+        try {
+            const res = await fetch('/api/user/me', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify(newProfileData)
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                MySwal.fire({ icon: 'success', title: 'Diseño guardado', toast: true, timer: 1000, showConfirmButton: false });
+            }
+        } catch (error) {
+            console.error("Error guardando perfil:", error);
+        }
+    };
+
     // Retornamos todo lo que el componente App necesita
     return {
         links,
+        profile,
         loading,
         createLink,
         deleteLink,
-        handleLogout
+        handleLogout,
+        updateProfile,
     };
 }

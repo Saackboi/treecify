@@ -13,15 +13,15 @@ const router = express.Router()
 router.get('/public/:username', (req, res) => {
     const { username } = req.params;
 
-    // 1. Primero buscamos el ID del usuario basado en su nombre
-    db.get("SELECT id FROM users WHERE username = ?", [username], (err, user) => {
+    // 1. Primero buscamos el ID del usuario y sus preferencias
+    db.get("SELECT id, username, bio, bg_color, btn_color, text_color FROM users WHERE username = ?", [username], (err, user) => {
         if (err) return res.status(500).json({ error: err.message });
         if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
 
         // 2. Si existe, buscamos sus links
         db.all("SELECT * FROM links WHERE user_id = ? ORDER BY id DESC", [user.id], (err, rows) => {
             if (err) return res.status(500).json({ error: err.message });
-            res.json({ success: true, data: rows, username: username });
+            res.json({ success: true, user: user, links: rows });
         });
     });
 });
