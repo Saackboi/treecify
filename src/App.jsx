@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PreviewPanel from './components/RightPanel/PreviewPanel'
-import FormPanel from './components/LeftPanel/FormPanel'
+import LeftPanel from './components/LeftPanel/LeftPanel'
 import swal from './utils/alerts'
 import { useDashboard } from './hooks/useDashboard';
 
 function App() {
   // la lógica de fetchs y manejo de token
-  const { links, loading, createLink, deleteLink, handleLogout } = useDashboard();
+  const { links, loading, profile, createLink, deleteLink, updateProfile, handleLogout } = useDashboard();
 
   // Estados UI locales (solo para controlar los inputs del formulario)
   const [title, setTitle] = useState("");
@@ -39,6 +39,12 @@ function App() {
     }
   };
 
+  if (loading) return <div className="flex gap-2 m-3 justify-center">
+    <span className="size-3 animate-ping rounded-full bg-indigo-600 dark:bg-indigo-300"></span>
+    <span className="size-3 animate-ping rounded-full bg-indigo-600 [animation-delay:0.2s] dark:bg-indigo-300"></span>
+    <span className="size-3 animate-ping rounded-full bg-indigo-600 [animation-delay:0.4s] dark:bg-indigo-300"></span>
+  </div>;
+
   return (
     // CONTENEDOR PRINCIPAL:
     <>
@@ -46,29 +52,36 @@ function App() {
       <div className="min-h-screen flex flex-col md:flex-row font-sans">
 
         {/* --- IZQUIERDA: PANEL DE ADMINISTRACIÓN --- */}
-        <FormPanel
-          links={links}             // Para LinksTab
-          loading={loading}         // Para LinksTab
-          title={title}             // Para FormInputs
-          setTitle={setTitle}       // Para FormInputs
-          url={url}                 // Para FormInputs
-          setUrl={setUrl}           // Para FormInputs
-          handleSubmit={handleSubmit} // Para FormInputs
+        <LeftPanel
+          // Props de Datos
+          links={links}
+          loading={loading}
+          profile={profile}
+
+          // Props de Formulario
+          title={title} setTitle={setTitle}
+          url={url} setUrl={setUrl}
+          isCreating={isCreating}
+
+          // Funciones
+          handleSubmit={handleSubmit}
           handleDelete={deleteLink}
-          isCreating={isCreating}   // Para FormInputs 
+          updateProfile={updateProfile}
+          handleLogout={handleLogout}
         />
-        <button
-          onClick={handleLogout}
-          className="fixed top-4 right-4 z-50 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded shadow text-xs"
-        >
-          Cerrar Sesión
-        </button>
 
         {/* --- DERECHA: PREVIEW EN VIVO (Móvil) --- */}
-        <PreviewPanel links={links} />
+        <PreviewPanel links={links} profile={profile} />
         {/* --- ENVIANDO links PARA ALCANCE --- */}
 
-
+        {/* Alerta de desarrollo*/}
+        <div className="fixed inset-x-0 bottom-0 z-[9999] p-4">
+          <div className="rounded border border-gray-200 bg-gray-100 px-4 py-2 text-gray-900">
+            <p className="text-center font-medium">
+              Demo Version
+            </p>
+          </div>
+        </div>
       </div>
 
 

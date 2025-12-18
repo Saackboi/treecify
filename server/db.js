@@ -52,6 +52,23 @@ db.serialize(() => {
             console.log(" Tabla 'users' lista.");
         }
     })
+
+});
+
+const migrationColumns = [
+    "ALTER TABLE users ADD COLUMN bio TEXT DEFAULT ''",
+    "ALTER TABLE users ADD COLUMN bg_color TEXT DEFAULT '#f3f4f6'",
+    "ALTER TABLE users ADD COLUMN btn_color TEXT DEFAULT '#4f46e5'",
+    "ALTER TABLE users ADD COLUMN text_color TEXT DEFAULT '#ffffff'"
+]
+
+migrationColumns.forEach(query => {
+    db.run(query, (err) => {
+        // Ignoramos error si la columna ya existe
+        if (err && !err.message.includes("duplicate column")) {
+            console.error("Error en migración:", err.message);
+        }
+    });
 });
 
 export default db;
