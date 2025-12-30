@@ -1,24 +1,25 @@
 # 🌳 Treecify
 
-![Version](https://img.shields.io/badge/version-2.3.0-indigo.svg) ![Stack](https://img.shields.io/badge/stack-MERN_Lite-green.svg) ![Docker](https://img.shields.io/badge/docker-ready-2496ED.svg)
+![Version](https://img.shields.io/badge/version-3.1.0-indigo.svg) ![Stack](https://img.shields.io/badge/stack-MERN_Lite-green.svg) ![Docker](https://img.shields.io/badge/docker-multi__arch-2496ED.svg)
 
-**Treecify** es una plataforma Micro-SaaS diseñada para que negocios locales y creadores gestionen su identidad digital. Permite desplegar una página de aterrizaje ("Link in Bio") ultra-rápida y generar códigos QR dinámicos para compartirla en el mundo físico.
+**Treecify** es una plataforma Micro-SaaS "Self-Hosted" diseñada para que negocios locales y creadores gestionen su identidad digital. Permite crear una página de aterrizaje ("Link in Bio") totalmente personalizada, ultra-rápida y generar códigos QR dinámicos para el mundo físico.
 
-Este proyecto destaca por su arquitectura **Monolítica Híbrida**, optimizada para el máximo rendimiento en servidores propios con **CasaOS** o VPS, utilizando una fracción de los recursos de soluciones tradicionales.
+La versión **v3.0** introduce personalización visual completa, gestión de avatares y una arquitectura Docker blindada para producción en entornos mixtos (AMD64/ARM64).
 
 ---
 
-## ✨ Características de Treecify
+## ✨ Novedades v3.0 & Características
 
-![Admin Dashboard](https://i.postimg.cc/bYV8tCFc/image.png)
-![Mobile View](https://i.postimg.cc/sxjYCDCN/image.png)
+![Admin Dashboard](https://i.postimg.cc/zfXy7gbd/image.png)
+![Admin Dashboard](https://i.postimg.cc/FFJ7TmR6/image.png)
 
-- **📱 Experiencia Mobile-First:** Vista pública optimizada para carga instantánea (< 1s) en smartphones.
-- **⚡ Dashboard Interactivo:** Panel de administración con **Vista Previa en Tiempo Real**.
-- **🗄️ Persistencia Blindada:** Base de datos **SQLite** local; tus datos son tuyos y sobreviven a cualquier reinicio.
-- **🔳 Motor QR Nativo:** Generación y descarga de códigos QR (SVG/PNG) que apuntan dinámicamente a tu servidor.
-- **🐳 Docker Ready:** Compilación **Multi-Arquitectura** (compatible con PC `amd64` y Servidores ARM `arm64` como Raspberry Pi).
-- **🛡️ Auto-Corrección Inteligente:** El sistema detecta y repara protocolos URL (`http/https`) automáticamente.
+- **🎨 Personalización Total:** Nuevo **Panel de Diseño**. Elige entre temas predefinidos o personaliza colores de fondo, botones y textos manualmente.
+- **📸 Gestión de Avatares:** Subida de imágenes de perfil con **Multer**. Incluye limpieza automática de archivos antiguos para ahorrar espacio y URLs anti-caché.
+- **📱 Mobile-First & Instantáneo:** Renderizado optimizado para carga < 1s en móviles.
+- **⚡ Dashboard Reactivo:** Vista previa en tiempo real. Los cambios de foto y colores se reflejan al instante sin recargar.
+- **🗄️ Persistencia Blindada:** Base de datos **SQLite** y sistema de archivos local para imágenes. Tus datos sobreviven a reinicios.
+- **🐳 Docker Multi-Arch:** Construido sobre `node:slim` con soporte nativo para **x86_64** y **ARM64** (Raspberry Pi, CasaOS), solucionando problemas de compilación nativa (SQLite).
+- **🔒 Seguridad Mejorada:** Validación de sesión robusta, manejo de `Mixed Content` vía variables de entorno y limpieza de localStorage en tokens expirados.
 
 ---
 
@@ -26,30 +27,27 @@ Este proyecto destaca por su arquitectura **Monolítica Híbrida**, optimizada p
 
 - **Frontend:** React + Vite + Tailwind CSS (v3).
 - **Backend:** Node.js + Express (ES Modules).
-- **Base de Datos:** SQLite3.
-- **Infraestructura:** Docker + Docker Compose.
+- **Gestión de Archivos:** Multer (Configuración modular).
+- **Base de Datos:** SQLite3 (Driver `sqlite3` compilado para multi-arquitectura).
+- **Infraestructura:** Docker + Docker Compose (Soporte HTTPS Proxy).
 
 ---
 
 ## 📂 Arquitectura del Proyecto
 
-Treecify sigue una arquitectura modular MVC para facilitar la escalabilidad futura.
+Estructura modularizada para separar configuración, rutas y lógica de negocio.
 
 ```bash
 treecify/
-├── .dockerignore        # Seguridad y optimización de imágenes
-├── docker-compose.yml   # Orquestación para instancia
-├── qr-biolink.yaml      # Orquestación para CasaOS/
-Producción
-├── Dockerfile           # Receta de construcción Multi-Stage
-├── vite.config.js       # Configuración de Proxy (Dev Mode)
+├── .dockerignore        # Ignora uploads locales y node_modules
+├── docker-compose.yml   # Orquestación con volúmenes persistentes
+├── Dockerfile           # Build Multi-Stage basado en Debian Slim
+├── vite.config.js       # Proxy reverso para desarrollo
+├── uploads/             # Carpeta de persistencia de imágenes (Mapeada en Docker)
 ├── src/
-    ├── assets/          # Recursos visuales
-│   ├── components/      # UI (FormPanel, PreviewPanel, QRShare)
-│   ├── pages/           # Vistas (PageRender)
+│   ├── config/          # Configuraciones externas
+│   ├── components/      # UI Modular
+│   ├── hooks/           # Custom Hooks (useDashboard)
 │   ├── server/          # Backend Node.js
-│   │   ├── db.js            # Conexión Singleton a SQLite
-│   │   ├── index.js         # Entry point del servidor
-│   │   └── routes/          # API Controllers
-│   └── App.jsx          # Layout Principal
+│   └── App.jsx          # Estado Global
 └── package.json

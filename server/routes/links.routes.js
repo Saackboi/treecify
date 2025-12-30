@@ -14,7 +14,7 @@ router.get('/public/:username', (req, res) => {
     const { username } = req.params;
 
     // 1. Primero buscamos el ID del usuario y sus preferencias
-    db.get("SELECT id, username, bio, bg_color, btn_color, text_color FROM users WHERE username = ?", [username], (err, user) => {
+    db.get("SELECT id, username, bio, bg_color, btn_color, text_color, profile_img FROM users WHERE username = ?", [username], (err, user) => {
         if (err) return res.status(500).json({ error: err.message });
         if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
 

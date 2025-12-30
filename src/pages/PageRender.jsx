@@ -5,7 +5,7 @@ export default function PageRender() {
 
     const { username } = useParams()
     const [links, setLinks] = useState([]);
-    const [profile, setProfile] = useState(null); // <--- NUEVO: Estado para el perfil
+    const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
 
@@ -39,6 +39,7 @@ export default function PageRender() {
     const btnColor = profile?.btn_color || '#ffffff';
     const textColor = profile?.text_color || '#334155';
     const bio = profile?.bio || "¡Hola! Esto es un ejemplo de presentación.";
+    const profileImg = profile?.profile_img || '../treecify_icon.svg';
 
 
     if (loading) return (
@@ -60,7 +61,7 @@ export default function PageRender() {
 
             {/* Perfil del Usuario */}
             <div className="w-24 h-24 bg-indigo-100 rounded-full mb-4 border-4 border-white shadow-md flex items-center justify-center text-4xl animate-bounce-slow">
-                🤠
+                <img src={profileImg} alt="" className="rounded-full w-full" />
             </div>
 
             <h2 className="text-2xl font-bold text-slate-800 text-center mb-2 mix-blend-hard-light">@{username}</h2>

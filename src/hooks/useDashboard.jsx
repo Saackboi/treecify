@@ -12,7 +12,8 @@ export function useDashboard() {
         bio: '',
         bg_color: '#f3f4f6',
         btn_color: '#4f46e5',
-        text_color: '#ffffff'
+        text_color: '#ffffff',
+        profile_img: ''
     });
 
     // Obtenemos el token al inicio
@@ -208,6 +209,6 @@ export function useDashboard() {
         createLink,
         deleteLink,
         handleLogout,
-        updateProfile,
+        updateProfile
     };
 }

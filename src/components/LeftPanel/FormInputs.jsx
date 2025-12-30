@@ -1,10 +1,9 @@
 import QRGen from "./QRGen";
 
 
-export default function FormInputs({ title, setTitle, url, setUrl, handleSubmit, isCreating }) {
-    const origin = window.location.origin;
-    const user = JSON.parse(localStorage.getItem('user'));
-    const username = user?.username || 'usuario';
+export default function FormInputs({ profile, title, setTitle, url, setUrl, handleSubmit, isCreating }) {
+
+    const username = profile?.username || 'usuario';
 
     // Genera la URL dinámica
     const profileUrl = `${window.location.origin}/u/${username}`;

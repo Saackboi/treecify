@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 import PreviewPanel from './components/RightPanel/PreviewPanel'
 import LeftPanel from './components/LeftPanel/LeftPanel'
 import swal from './utils/alerts'
