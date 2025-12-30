@@ -26,6 +26,13 @@ app.use('/api/links', linksRouter) // Todo lo que empiece por /api/links lo va a
 app.use('/api/auth', authRouter) // Todo lo que empiece por /api/auth lo va a manejar este archivo
 app.use('/api/user', userRouter) // Todo lo que empiece por /api/user lo va a manejar este archivo
 
+// Servir carpeta uploads públicamente
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads'), {
+    setHeaders: (res, path, stat) => {
+        res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+    }
+}));
+
 // --- SERVIDOR FRONTEND ---
 // DECIRLE A EXPRESS DONDE ESTA LA CARPETA 'dist'
 const distPath = path.resolve(process.cwd(), 'dist')

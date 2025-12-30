@@ -43,6 +43,7 @@ export default function LeftPanel({
                 {activeTab === 'links' ? (
                     <FormPanel
                         links={links} loading={loading}
+                        profile={profile}
                         title={title} setTitle={setTitle}
                         url={url} setUrl={setUrl}
                         handleSubmit={handleSubmit} handleDelete={handleDelete}

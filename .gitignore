@@ -23,13 +23,13 @@ dist-ssr
 *.sln
 *.sw?
 
-# --- Dependencias (¡NUNCA SUBIR ESTO!) ---
+# --- Dependencias---
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# --- Entorno y Seguridad (¡CRÍTICO!) ---
+# --- Entorno y Seguridad ---
 .env
 .env.local
 .env.development.local
@@ -41,6 +41,9 @@ yarn-error.log*
 *.sqlite
 links.db
 *.db-journal
+uploads/*
+!uploads/.gitkeep
+*.db
 
 # --- Archivos de Construcción (Builds) ---
 dist/
@@ -55,5 +58,5 @@ Thumbs.db
 .vscode/
 .idea/
 
-# --- Docker (Opcional, a veces es bueno ignorar logs) ---
+# --- Docker ---
 docker-compose.override.yml

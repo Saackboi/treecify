@@ -1,12 +1,12 @@
 name: qr-biolink
 services:
   qr-app:
-    # La Imagen:
-    image: sackboi/qr-saas:v1 
+    # 1. IMAGEN ACTUALIZADA
+    image: sackboi/qr-saas:v3.2
     container_name: qr-biolink
     restart: unless-stopped
     
-    # 2. Recursos (Opcional pero recomendado para no saturar el server)
+    # 2. Recursos
     deploy:
       resources:
         limits:
@@ -15,20 +15,26 @@ services:
     # 3. Puertos
     ports:
       - target: 3001
-        published: "3001" # Puedes cambiar este número si el 3001 ya está ocupado en tu server
+        published: "3001"
         protocol: tcp
         
-    # 4. Volúmenes (Persistencia de datos al estilo CasaOS)
+    # 4. Volúmenes
     volumes:
       - type: bind
         source: /DATA/AppData/qr-biolink/links.db
         target: /app/links.db
+      - type: bind
+        source: /DATA/AppData/qr-biolink/uploads
+        target: /app/uploads
         
+    # 5. Variables de Entorno
     environment:
       - NODE_ENV=production
       - JWT_SECRET=cambia_esta_clave_porfavor2334
+      # IMPORTANTE: Cambia esto por tu dominio real (con https://)
+      - PUBLIC_URL=url_publica
 
-    # 5. Configuración visual para los ajustes DENTRO de CasaOS
+    # 6. Configuración visual interna de CasaOS
     x-casaos:
       ports:
         - container: "3001"
@@ -37,9 +43,12 @@ services:
       volumes:
         - container: /app/links.db
           description:
-            en_US: Base de datos SQLite persistente
+            en_US: Base de datos SQLite
+        - container: /app/uploads
+          description:
+            en_US: Carpeta persistente de Avatares (Fotos)
 
-# 6. Metadatos GLOBALES para la "Tienda" de CasaOS (El icono del Dashboard)
+# 7. Metadatos de la Tienda CasaOS
 x-casaos:
   architectures:
     - amd64
@@ -50,12 +59,12 @@ x-casaos:
   description:
     en_US: >
       Micro-SaaS para generar páginas de Bio-Link y códigos QR dinámicos para negocios locales.
-      Incluye panel de administración y vista móvil optimizada.
+      Incluye panel de administración, temas personalizados y vista móvil optimizada (v3.0).
   developer: Koji
   icon: https://i.postimg.cc/qv5Djs0Z/treecify-icon.png
   main: qr-app
-  port_map: "3001" # Debe coincidir con el puerto 'published' de arriba
+  port_map: "3001"
   scheme: http
   title:
-    custom: Treecify
-    en_us: Treecify
+    custom: Treecify v3
+    en_us: Treecify v3

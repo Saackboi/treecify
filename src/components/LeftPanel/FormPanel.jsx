@@ -2,7 +2,7 @@
 import FormInputs from './FormInputs'
 import LinksTab from './LinksTab'
 
-export default function FormPanel({ links, loading, title, setTitle, url, setUrl, handleSubmit, handleDelete, isCreating }) {
+export default function FormPanel({ links, loading, profile, title, setTitle, url, setUrl, handleSubmit, handleDelete, isCreating }) {
     return (
         /* --- IZQUIERDA: PANEL DE ADMINISTRACIÓN --- */
         <section className="w-full h-full p-8 flex flex-col items-center">
@@ -10,6 +10,7 @@ export default function FormPanel({ links, loading, title, setTitle, url, setUrl
 
                 {/*Formulario */}
                 <FormInputs
+                    profile={profile}
                     title={title}
                     setTitle={setTitle}
                     url={url}

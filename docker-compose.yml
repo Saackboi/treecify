@@ -18,12 +18,10 @@ services:
     # 5. Persistencia: "Guarda el archivo links.db en un volumen seguro"
     volumes:
       - ./links.db:/app/links.db
+      - ./uploads:/app/uploads
     
     # 6. Variables de entorno
     environment:
       - NODE_ENV=production
       - JWT_SECRET=cambia_esta_clave_porfavor2334
-
-# Definimos el volumen persistente fuera del contenedor
-volumes:
-  qr-data:
+      - PUBLIC_URL=usa_tu_direccion_publica_aqui 

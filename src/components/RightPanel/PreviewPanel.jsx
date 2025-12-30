@@ -1,7 +1,6 @@
 
 export default function PreviewPanel({ profile, links }) {
 
-    console.log("👀 DATOS EN PREVIEW:", profile);
     // Asegura que el link maneje el protocolo http
     const ensureProtocol = (url) => {
         if (!url) return '#'
@@ -16,6 +15,7 @@ export default function PreviewPanel({ profile, links }) {
     const bgColor = profile?.bg_color || '#f8fafc';
     const btnColor = profile?.btn_color || '#ffffff';
     const textColor = profile?.text_color || '#334155';
+    const profileImg = profile?.profile_img || 'treecify_icon.svg';
 
     return (
         /* --- DERECHA: PREVIEW EN VIVO (Móvil) --- */
@@ -32,9 +32,9 @@ export default function PreviewPanel({ profile, links }) {
 
                     {/* Perfil del Usuario */}
                     <div className="w-24 h-24 bg-indigo-100 rounded-full mb-4 border-4 border-white shadow-md flex items-center justify-center text-4xl animate-bounce-slow" >
-                        🤠
+                        <img src={profileImg} alt="" className="rounded-full w-full" />
                     </div >
-                    <h2 className="text-xl font-bold text-slate-800 text-center">{username}</h2>
+                    <h2 className="text-xl font-bold text-slate-800 text-center">@{username}</h2>
                     <p className="text-sm text-slate-500 mb-8 text-center leading-relaxed">
                         {bio}
                     </p>

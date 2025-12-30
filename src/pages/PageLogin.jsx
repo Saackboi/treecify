@@ -39,10 +39,6 @@ export default function PageLogin() {
                 // Guardamos la llave de acceso
                 localStorage.setItem('token', data.token);
 
-                // Guardamos datos del usuario para mostrar nombre/email luego
-                localStorage.setItem('user', JSON.stringify(data.user));
-
-                //
                 const username = JSON.parse(JSON.stringify(data.user)).username
 
                 // Alerta bonita
