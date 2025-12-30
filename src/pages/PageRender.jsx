@@ -61,7 +61,7 @@ export default function PageRender() {
 
             {/* Perfil del Usuario */}
             <div className="w-24 h-24 bg-indigo-100 rounded-full mb-4 border-4 border-white shadow-md flex items-center justify-center text-4xl animate-bounce-slow">
-                <img src={profileImg} alt="" className="rounded-full w-full" />
+                <img src={profileImg} alt="" className="w-full h-full object-cover rounded-full border-4 border-white shadow-md bg-gray-100" />
             </div>
 
             <h2 className="text-2xl font-bold text-slate-800 text-center mb-2 mix-blend-hard-light">@{username}</h2>
