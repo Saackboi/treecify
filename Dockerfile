@@ -1,6 +1,6 @@
 # 1. Usamos Node.js ligero (Alpine Linux)
 
-FROM node:18-alpine
+FROM node:25-alpine
 
 
 
