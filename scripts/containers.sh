@@ -14,15 +14,21 @@ BUILD_OPTIONS=()
 if [[ "$ENGINE" == podman ]]; then BUILD_OPTIONS+=(--format docker); fi
 "$ENGINE" build "${BUILD_OPTIONS[@]}" -t treecify-lab:1.0 . 2>&1 | tee "$DEST/build.txt"
 NAME="treecify-lab-$ENGINE"
+PORT="${LAB_PORT:-3001}"
+RESOURCE_OPTIONS=(--pids-limit 100 --memory 512m --cpus 1)
+if [[ "$ENGINE" == podman && "${PODMAN_ROOTLESS_CGROUPS:-}" == unavailable ]]; then
+  RESOURCE_OPTIONS=(--cgroups=disabled --ulimit nofile=1024:1024 --ulimit nproc=100:100)
+  printf "WSL rootless: cgroups no delegados; sin límite CPU/memoria. Se conservan UID, readonly, capacidades y no-new-privileges.\n" > "$DEST/runtime-limitations.txt"
+fi
 if "$ENGINE" container exists "$NAME" 2>/dev/null || "$ENGINE" inspect "$NAME" >/dev/null 2>&1; then
   echo "Ya existe $NAME. Revise y retire únicamente el contenedor de laboratorio antes de repetir."; exit 1
 fi
 export JWT_SECRET="$(node -e "console.log(require('crypto').randomBytes(48).toString('hex'))")"
 trap '"$ENGINE" rm -f "$NAME" >/dev/null 2>&1 || true; unset JWT_SECRET' EXIT
-"$ENGINE" run -d --name "$NAME" --read-only --user 10001:10001 --cap-drop ALL --security-opt no-new-privileges --pids-limit 100 --memory 512m --cpus 1 \
+"$ENGINE" run -d --name "$NAME" --read-only --user 10001:10001 --cap-drop ALL --security-opt no-new-privileges "${RESOURCE_OPTIONS[@]}" \
   --tmpfs /tmp:rw,noexec,nosuid,size=16m --tmpfs /data:rw,noexec,nosuid,mode=1777,size=64m \
-  -p 127.0.0.1:3001:3001 -e JWT_SECRET -e PUBLIC_URL=http://localhost:3001 treecify-lab:1.0
-npm run smoke | tee "$DEST/smoke.txt"
+  -p "127.0.0.1:$PORT:3001" -e JWT_SECRET -e "PUBLIC_URL=http://localhost:$PORT" treecify-lab:1.0
+BASE_URL="http://127.0.0.1:$PORT" npm run smoke | tee "$DEST/smoke.txt"
 "$ENGINE" logs "$NAME" > "$DEST/logs.jsonl" 2>&1
 # Whitelist inspection fields: never save Config.Env (contains the secret).
 "$ENGINE" inspect "$NAME" --format '{"user":{{json .Config.User}},"readonly":{{json .HostConfig.ReadonlyRootfs}},"cap_drop":{{json .HostConfig.CapDrop}},"security_opt":{{json .HostConfig.SecurityOpt}}}' > "$DEST/inspect.json"

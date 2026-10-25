@@ -15,7 +15,7 @@ COPY --from=build --chown=10001:10001 /app/node_modules ./node_modules
 COPY --from=build --chown=10001:10001 /app/dist ./dist
 COPY --chown=10001:10001 package.json package-lock.json ./
 COPY --chown=10001:10001 server/ ./server/
-RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx /opt/yarn* /usr/local/bin/yarn /usr/local/bin/yarnpkg \
+RUN rm -rf /usr/local/lib/node_modules /usr/local/bin/corepack /usr/local/bin/npm /usr/local/bin/npx /opt/yarn* /usr/local/bin/yarn /usr/local/bin/yarnpkg \
     && mkdir -p /data/uploads && chown -R 10001:10001 /data
 USER 10001:10001
 EXPOSE 3001
