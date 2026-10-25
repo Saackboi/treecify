@@ -115,7 +115,7 @@ audit_summary = {'umbral_de_bloqueo': 'HIGH/CRITICAL', 'conteos': audit['metadat
 page('34-sca', 'SCA: auditoría de todas las dependencias npm', [section('evidencias/local/npm-audit.json', json.dumps(audit_summary, indent=2, ensure_ascii=False))], 'El control bloquea altas y críticas. Los tres avisos moderados de desarrollo permanecen visibles: el pipeline verde no significa cero hallazgos de toda severidad.')
 security = read('docs/SEGURIDAD.md')
 inventory = security.split('## Mapa de secretos por entorno', 1)[-1].split('## Historial', 1)[0]
-page('35-secretos-inventario', 'Inventario de ubicaciones y plan de rotación', [section('docs/SEGURIDAD.md', inventory, limit=90)], 'Se muestran ubicaciones y procedimientos, nunca valores. La rotación de un servidor activo requiere confirmación de su administrador; el laboratorio no la simula como realizada.')
+page('35-inventario', 'Inventario de ubicaciones y plan de rotación', [section('docs/SEGURIDAD.md', inventory, limit=90)], 'Se muestran ubicaciones y procedimientos, nunca valores. La rotación de un servidor activo requiere confirmación de su administrador; el laboratorio no la simula como realizada.')
 alerts = read('docs/LABORATORIO.md').split('## Logs, métricas y diseño de alertas', 1)[-1]
 page('36-alertas-diseno', 'Alertas y trazas: diseño para el informe', [section('docs/LABORATORIO.md', alerts)], 'Solo diseño, según el enunciado. Los logs y métricas sí se probaron; no se afirma haber instalado Prometheus ni trazas distribuidas.')
 if (EVIDENCE / 'actions' / 'dependabot-main.json').exists():
