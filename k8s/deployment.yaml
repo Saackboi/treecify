@@ -16,7 +16,7 @@ spec:
     metadata:
       labels: { app: treecify }
     spec:
-      automountServiceAccountToken: false
+      automountServiceAccountToken: true
       terminationGracePeriodSeconds: 15
       securityContext:
         runAsNonRoot: true
