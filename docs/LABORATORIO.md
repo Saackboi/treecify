@@ -34,9 +34,8 @@ Los fixtures negativos se generan en tmp/ durante la verificación local, sin
 introducir manifiestos inseguros dentro de k8s/.
 
 ## Tres fallos reales de Actions (no simulados)
-Primero resolver el bloqueo de secretos heredados descrito en SEGURIDAD.md y
-publicar el código de laboratorio. Guardar URL de ejecución, commit, causa, arreglo
-y URL verde para cada caso. Estas ejecuciones aún deben producirse en GitHub.
+Usar la rama de laboratorio saneada, según SEGURIDAD.md. Guardar URL de ejecución, commit, causa, arreglo
+y URL verde para cada caso. Las ejecuciones ya se produjeron: enlaces y correcciones en EVIDENCIAS.md.
 
 ### Caso 1: fuga deliberadamente falsa
 ```bash

@@ -5,7 +5,7 @@
 | Origen | Saackboi/treecify, main; la copia de laboratorio conserva su historial |
 | Ruta | A: aplicación web ejecutable en Linux |
 | Frontend | React 19, Vite 7, Tailwind 3, React Router |
-| Backend | Node 24.22.1, Express 5, sqlite3, bcryptjs, jsonwebtoken |
+| Backend | Node 24.22.1, Express 5, SQLite incluido en Node, bcryptjs, jsonwebtoken |
 | Persistencia | SQLite local y avatares; sin estado compartido entre réplicas |
 | Entradas | Registro/login, perfiles, enlaces, subida de avatar, frontend SPA |
 | Componentes nuevos | sharp, express-rate-limit, health/readiness, logs/métricas, CI, políticas, kind |

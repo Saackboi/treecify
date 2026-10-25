@@ -1,61 +1,62 @@
-# Validación de la implementación
-Fecha: 25 de octubre de 2026, America/Bogota. Resultados locales; no son ejecuciones de GitHub Actions.
+# Validación final del laboratorio
+Fecha: 25 de octubre de 2026, America/Bogota.
 
-## Ejecutado
-| Comprobación | Resultado observado |
+## Resultados ejecutados
+| Comprobación | Resultado |
 |---|---|
-| npm ci y dependencias nativas | Instalación correcta en Node 24.22.1; sqlite3 6.0.1 operativo |
-| npm test | 8 grupos aprobados, 0 fallos |
-| npm run smoke:local | Arranque real de server/index.js, HTTP 200/401, JWT válido, readiness, instancia, métricas y logs JSON comprobados |
-| npm run lint | Sin errores en frontend, backend, scripts y pruebas |
-| npm run build | Frontend compilado con Vite 7.3.7 |
-| Conftest verify policy/docker | 6 pruebas aprobadas |
-| Conftest verify policy/k8s | 7 pruebas aprobadas |
-| Conftest test Dockerfile | 5 comprobaciones aprobadas |
-| Conftest test k8s/ | 33 comprobaciones aprobadas |
-| Violación real de Dockerfile en archivo temporal | Exit 1 esperado; archivo real corregido pasa |
-| Violación de ServiceAccount en YAML temporal | Exit 1 esperado; manifiesto real corregido pasa |
-| Credencial deliberadamente falsa en temporal | Gitleaks exit 1 esperado, reporte redactado, valor retirado después |
-| Gitleaks dir sobre árbol actual | Sin fugas |
-| Gitleaks git --log-opts=--all | Bloquea: 2 hallazgos heredados del commit original, detallados en SEGURIDAD.md |
-| npm audit | 0 altas/críticas; 3 moderadas en cadena Tailwind/PostCSS |
-| Trivy config HIGH/CRITICAL | 4 archivos analizados, 0 hallazgos en el umbral |
-| Trivy sobre dependencias runtime | 0 vulnerabilidades HIGH/CRITICAL |
-| SBOM local de fuentes | CycloneDX 1.7, 452 componentes, 451 bibliotecas y 1 aplicación; 451 PURL |
-| Trivy sbom sobre inventario local con dev dependencies | Sin HIGH/CRITICAL; resultado JSON guardado |
-| Actionlint 1.7.12 | Workflow sin errores; revisión de shellcheck no ejecutada |
-| Bash -n | Los cuatro scripts Bash pasan revisión de sintaxis |
+| Aplicación | 8 grupos de pruebas aprobados; lint y compilación correctos |
+| SQLite | Se usa node:sqlite de Node 24; se eliminó sqlite3 y la necesidad de compiladores |
+| Docker real | Engine 29.8.2 dentro de Fedora 44/WSL; build, health, 401/200, métricas y UID 10001 comprobados |
+| Podman real | Cliente Windows 5.8.3 y servidor 5.8.9; rootless; mismo Dockerfile; humo correcto en puerto 3002 |
+| Restricciones | Readonly, no-new-privileges, UID/GID 10001 y descarte de capacidades inspeccionados en ambos motores |
+| Recursos Docker | Configurados 512 MiB, 1 CPU, 100 procesos; el motor advierte falta de límite de swap en WSL |
+| Recursos Podman rootless | WSL no delega cgroups; la comparación explícita usa ulimit y registra ausencia de límites CPU/memoria |
+| Compose | 5.6.0: volumen nuevo treecify-lab_lab-data, contenedor Healthy, humo correcto y apagado comprobado |
+| Proveedor Podman Compose | Se encontró Docker Compose 5.6.0 dentro de la máquina; no se afirma compatibilidad completa |
+| Rego | 6 pruebas Docker y 7 Kubernetes aprobadas; archivos reales pasan; violaciones detectadas |
+| Secretos | Árbol y todos los commits de HEAD de laboratorio pasan Gitleaks sin allowlist |
+| Historial original | main y etiquetas no se reescribieron; la clave antigua requiere rotación si se utilizó |
+| GitHub Actions | Código, imagen y Kubernetes ejecutados y verdes |
+| Fallos controlados | Tres rojos por secreto ficticio, política propia y SAST; tres correcciones verdes |
+| Imagen y SBOM | CycloneDX 1.7 con 137 componentes (136 bibliotecas y un SO), 136 PURL; cero HIGH/CRITICAL en imagen y SBOM |
+| Kubernetes | kind 0.31.0 y nodo 1.35.0 por digest en runner Linux; despliegue y experimentos aprobados |
+| Recuperación | Pod eliminado y reemplazado; en ejecución de referencia se observó recuperación en 9 s |
+| Rollout fallido | Imagen inexistente rechazó disponibilidad de nueva réplica; timeout intencional de 30 s y rollback correcto |
+| Escala | Cinco pods Ready y regreso a dos réplicas; SQLite/avatares independientes por pod |
+| Observabilidad | Eventos 401 y métricas obtenidos por cada una de las cinco réplicas; logs JSON válidos |
+| Tráfico de referencia | 155 solicitudes de prueba; 155 respuestas 200 y cero errores durante los escenarios |
+| Capturas | Interfaz real de GitHub y visor de logs originales, con fuente y hash; índice en evidencias/ |
 
-Las herramientas nativas Conftest 0.71.1, Gitleaks 8.30.1, Trivy 0.76.1 y
-Actionlint 1.7.12 se descargaron de sus publicaciones oficiales y se verificaron
-por SHA-256. Están en tmp/tools/ ignorado por Git. Las imágenes OCI del workflow
-se consultaron en el registro oficial y se fijaron por digest en tool-pins.json.
-Las acciones se verificaron con git ls-remote de sus repositorios oficiales.
+## Ejecuciones de referencia
+- Pipeline completo, incluidos experimentos Kubernetes: [40231701262](https://github.com/Saackboi/treecify/actions/runs/40231701262).
+- Primer pipeline verde de imagen y controles: [40230814876](https://github.com/Saackboi/treecify/actions/runs/40230814876).
+- Las parejas rojo/verde y sus causas están en [EVIDENCIAS.md](EVIDENCIAS.md).
 
-Las pruebas HTTP usaron carpetas temporales, claves aleatorias y datos ficticios.
-El humo automático eliminó su base y archivos temporales después de cerrar el servidor.
-Los reportes locales saneados están en evidencias/local/ y no se añaden automáticamente a Git.
+Los reportes descargados de Actions se verificaron contra el SHA-256 del artefacto.
+La ejecución de referencia corresponde a 21d149c; una nueva ejecución puede cambiar
+nombres de pods, reparto, tiempos y contadores. Son observaciones, no garantías generales.
 
-## Lectura del SBOM local
-El inventario permite identificar paquetes por PURL (451 de 452 componentes).
-El componente aplicación representa este proyecto y no tiene PURL.
-El análisis HIGH/CRITICAL pasa; esto no contradice los hallazgos moderados de npm audit,
-porque ese umbral no los bloquea. Las licencias del inventario de fuentes no se
-consideran completas al no recopilar todas desde node_modules. Revisarlas al analizar
-el SBOM de imagen y distinguir paquetes compilados del árbol de desarrollo.
+## Diferencias reales entre Windows y runner
+La creación de kind en el WSL de este equipo falló por la jerarquía/delegación de
+cgroups. Se conservó su salida en evidencias/k8s-create.txt. No se quitaron controles
+de Kubernetes: el mismo código se ejecutó correctamente en un clúster kind efímero
+local al runner Ubuntu de GitHub Actions. Las capturas identifican explícitamente
+este entorno; no se presentan como un clúster exitoso en el equipo Windows.
 
-## Preparado, pendiente de ejecución en el entorno correspondiente
-| Parte | Qué falta |
-|---|---|
-| Semgrep | Ejecutar la imagen fijada sobre las reglas OWASP y locales; no se ejecutó Semgrep en Windows |
-| Docker / Podman | Construir y ejecutar ambas imágenes, inspeccionar usuario y restricciones y completar comparación |
-| Compose | Ejecutar con Docker y comprobar volumen nuevo; proveedor Podman opcional |
-| Kubernetes | Instalar/disponer de Docker, kind y kubectl; crear clúster local y ejecutar experimentos |
-| GitHub Actions | Publicar cambios y ejecutar; primero resolver los secretos heredados que bloquean el historial |
-| Tres rojos y correcciones de Actions | Producir con las ramas y scripts documentados; las pruebas negativas locales no los reemplazan |
-| SBOM de imagen | Se genera al construir la imagen en CI; el SBOM de fuentes no lo sustituye |
-| Secretos del entorno activo | El administrador debe confirmar rotación; no se tocó producción |
-| Entregables separados | Informe PDF, diagramas, capturas, análisis arquitectónico, aportes individuales y defensa |
+Podman rootless pudo construir y ejecutar la aplicación. Su modo OCI predeterminado
+omitía HEALTHCHECK; --format docker lo conserva. Las opciones tmpfs uid/gid del cliente
+remoto no eran admitidas: se usa mode=1777 en almacenamiento efímero de un único
+contenedor, manteniendo el proceso con UID 10001. La falta de cgroups se registra
+mediante PODMAN_ROOTLESS_CGROUPS=unavailable; no es un fallback silencioso ni afecta
+las restricciones de Docker Compose, Kubernetes o CI.
 
-No se crearon commits ni se publicaron cambios en GitHub. Los cambios están en
-la copia de laboratorio, rama lab/devsecops, para revisión y commits de los integrantes.
+## Deuda que no se ha ocultado
+- Tres avisos moderados de desarrollo en Tailwind/PostCSS, bajo el umbral HIGH/CRITICAL.
+- La rotación de la clave en cualquier servidor activo debe confirmarla su administrador.
+- main mantiene el historial original; no integrar la rama saneada hasta coordinar ese historial.
+- SQLite y archivos locales no proporcionan persistencia compartida ni alta disponibilidad de datos.
+- JWT en localStorage, rate limit por proceso y /metrics público se documentan como límites del laboratorio.
+- Informe PDF, diagramas, aportes individuales y defensa siguen siendo entregables del grupo.
+
+Todos los cambios y pruebas se hicieron en Workspace 2 y entornos de laboratorio.
+Workspace 1 solo se leyó. No se accedió al servidor activo ni se modificó main.

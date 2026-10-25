@@ -61,6 +61,13 @@ for pod in $(k get pods -l app=treecify -o jsonpath='{.items[*].metadata.name}')
 done
 k scale deployment/treecify "--replicas=$INITIAL_REPLICAS"
 k rollout status deployment/treecify --timeout=120s
+# Wait for scaled-down pods to be removed, not only for desired replicas to be ready.
+for i in $(seq 1 30); do
+  COUNT="$(k get pods -l app=treecify --no-headers | wc -l | tr -d ' ')"
+  [[ "$COUNT" == "$INITIAL_REPLICAS" ]] && break
+  sleep 1
+done
+[[ "$COUNT" == "$INITIAL_REPLICAS" ]]
 k get pods -o wide > "$OUT/restored-pods.txt"
 kill "$TRAFFIC_PID" 2>/dev/null || true
 wait "$TRAFFIC_PID" 2>/dev/null || true
