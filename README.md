@@ -69,10 +69,11 @@ Falla ante secretos, hallazgos SAST, políticas incumplidas o vulnerabilidades
 HIGH/CRITICAL; no usa `continue-on-error` en controles. Las acciones usan SHA completo
 y las imágenes externas digest verificado. Dependabot revisa npm, Actions y Docker.
 
-**Bloqueo conocido del pipeline:** Gitleaks encuentra dos exposiciones de la antigua
-clave JWT en el commit original `0294c5c14a17302e85b2792a505f95134956328b`.
-El árbol actual está limpio; el historial sigue bloqueando el control hasta su
-saneamiento. No se añadieron excepciones para ocultarlo ni se reescribió el historial remoto.
+**Historial del laboratorio saneado:** los nueve commits de esta rama pasan Gitleaks.
+El control recorre todo el historial de HEAD, no otras ramas ajenas a esta entrega.
+Se conservan main y las etiquetas originales sin reescritura: allí permanece la antigua
+exposición, que requiere rotación si se utilizó en un despliegue. No se añadió allowlist.
+Una PR de esta rama debe revisarse sin integrar main hasta coordinar su saneamiento.
 
 La disposición original del código se conserva para compilar la aplicación:
 `sistema/` y `servicio/` explican su correspondencia con la estructura del enunciado.

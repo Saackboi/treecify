@@ -10,7 +10,7 @@
 | 3. Compose | docker-compose.yml, qr-biolink.yaml | Entorno local declarativo | docker compose up --build -d | docker compose logs | Volumen nuevo; raíz readonly; ALL capabilities descartadas |
 | 3. Podman | scripts/containers.sh, docs/COMPARACION-MOTORES.md | Reutilizar Dockerfile y guardar observaciones | bash scripts/containers.sh podman | evidencias/podman/ | Rootless del motor y UID del proceso se verifican por separado |
 | 4. Pipeline | .github/workflows/devsecops.yml | Controles antes de construir la imagen | push a lab/** o PR | URL de Actions y artefacto por run_id/sha | Dos jobs; timeout y permisos contents:read |
-| 4-5. Secretos | .gitleaks.toml, scripts/controlled-failure.mjs | Detectar archivos y todos los commits descargados | Gitleaks dir y git --log-opts=--all | Reportes redactados | Regla propia detecta credencial siempre ficticia |
+| 4-5. Secretos | .gitleaks.toml, scripts/controlled-failure.mjs | Detectar archivos y todos los commits alcanzables desde HEAD | Gitleaks dir y git --log-opts=HEAD | Reportes redactados | Regla propia detecta credencial siempre ficticia |
 | 4. SAST | .semgrep.yml | OWASP Top Ten y reglas propias de CORS/CSP/eval | Job controles-de-codigo | Log del paso SAST | Herramienta fijada; baseline OWASP remoto debe revisarse al variar |
 | 4. SCA/IaC | package-lock.json, Dockerfile, k8s/ | npm audit y Trivy fs/image | Workflow | Log y image-scan.json | Umbral HIGH/CRITICAL incluye dependencias de desarrollo en npm audit |
 | 6. SBOM | scripts/sbom-summary.mjs, workflow | Generar y analizar componentes y vulnerabilidades | node scripts/sbom-summary.mjs <sbom> | sbom.cdx.json, sbom-summary.json, sbom-scan.json | El SBOM de imagen identifica la ejecución; el SBOM local de fuentes es distinto |

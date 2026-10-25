@@ -36,12 +36,12 @@ RBAC, External Secrets o bóveda en escenarios reales. No se versiona YAML de se
 | CI | En cada ejecución | Generación efímera automática | Workflow; sin secreto persistente |
 | Entorno comprometido por herramienta CI | Incidente de suministro | Detener workflow, revocar/rotar credenciales accesibles, revisar logs y artefactos, verificar ejecutables y reanudar con referencias revisadas | Dueño del repositorio y cada credencial afectada |
 
-## Historial: bloqueo real, no excepción
+## Historial original y saneamiento de la rama de laboratorio
 Gitleaks detectó generic-api-key en:
 - commit 0294c5c14a17302e85b2792a505f95134956328b, docker-compose.yml, línea histórica 25;
 - mismo commit, qr-biolink.yaml, línea histórica 29.
 
-No se incluye el valor ni se añade allowlist. El pipeline seguirá bloqueando su historial.
+No se incluye el valor ni se añade allowlist. La primera ejecución bloqueó correctamente ese historial.
 La copia actual sí elimina ambos valores. Una limpieza coordinada requiere:
 1. Rotar la credencial primero y comprobar el rechazo de tokens antiguos.
 2. Hacer respaldo y acordar la reescritura con colaboradores.
@@ -53,7 +53,11 @@ La copia actual sí elimina ambos valores. Una limpieza coordinada requiere:
    deben volver a clonar o limpiar referencias antiguas.
 
 Borrar una línea o hacer revert NO elimina un secreto de commits anteriores.
-No se reescribió ni forzó ninguna rama remota durante esta implementación.
+Se saneó únicamente lab/devsecops: el valor se reemplazó por un marcador en los commits históricos.
+main y las etiquetas originales permanecen intactas. El escaneo completo de HEAD pasa
+sin excepciones; el escaneo de todas las referencias sigue señalando el legado original.
+Una PR debe comprobar la cabeza propuesta, no un merge sintético con el historial
+original aún expuesto. No integrar esta rama hasta coordinar la limpieza de main.
 No activar una exclusión general de generic-api-key para conseguir una ejecución verde.
 
 ## Reglas de fallo y deuda
