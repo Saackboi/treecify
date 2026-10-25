@@ -31,7 +31,7 @@ trap '"$ENGINE" rm -f "$NAME" >/dev/null 2>&1 || true; unset JWT_SECRET' EXIT
 BASE_URL="http://127.0.0.1:$PORT" npm run smoke | tee "$DEST/smoke.txt"
 "$ENGINE" logs "$NAME" > "$DEST/logs.jsonl" 2>&1
 # Whitelist inspection fields: never save Config.Env (contains the secret).
-"$ENGINE" inspect "$NAME" --format '{"user":{{json .Config.User}},"readonly":{{json .HostConfig.ReadonlyRootfs}},"cap_drop":{{json .HostConfig.CapDrop}},"security_opt":{{json .HostConfig.SecurityOpt}}}' > "$DEST/inspect.json"
+"$ENGINE" inspect "$NAME" | node scripts/inspect-summary.mjs > "$DEST/inspect.json"
 "$ENGINE" exec "$NAME" id > "$DEST/identity.txt"
 "$ENGINE" image inspect treecify-lab:1.0 --format '{{.Id}}' > "$DEST/image-id.txt"
 echo "Evidencia real guardada en $DEST. Revise info.json antes de compartir metadatos de su equipo."

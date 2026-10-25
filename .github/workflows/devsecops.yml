@@ -95,3 +95,46 @@ jobs:
           path: evidencias/ci/
           retention-days: 14
           if-no-files-found: warn
+
+  kubernetes:
+    needs: imagen
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24.22.1"
+          cache: npm
+      - name: Herramientas verificadas y dependencias
+        run: |
+          npm ci --no-audit --no-fund
+          curl -fsSLo /tmp/kind https://github.com/kubernetes-sigs/kind/releases/download/v0.31.0/kind-linux-amd64
+          echo "eb244cbafcc157dff60cf68693c14c9a75c4e6e6fedaf9cd71c58117cb93e3fa /tmp/kind" | sha256sum --check
+          sudo install -m 0755 /tmp/kind /usr/local/bin/kind
+          kind version
+          kubectl version --client
+      - name: Crear clúster kind local en el runner con controles completos
+        run: |
+          mkdir -p evidencias/k8s
+          bash scripts/kind-up.sh docker 2>&1 | tee evidencias/k8s/setup.txt
+      - name: Resiliencia, rollback, escala, logs y métricas por réplica
+        run: bash scripts/k8s-experiments.sh 2>&1 | tee evidencias/k8s/experiments.txt
+      - name: Estado final sin valores de secretos
+        if: always()
+        run: |
+          kubectl --context kind-treecify-lab -n treecify-lab get pods -o wide > evidencias/k8s/final-pods.txt || true
+          kubectl --context kind-treecify-lab -n treecify-lab get deployment treecify -o json > evidencias/k8s/deployment-controls.json || true
+          kubectl --context kind-treecify-lab -n treecify-lab get events --sort-by=.metadata.creationTimestamp > evidencias/k8s/events.txt || true
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: kubernetes-${{ github.run_id }}-${{ github.sha }}
+          path: evidencias/k8s/
+          retention-days: 14
+      - name: Retirar solo el clúster efímero de esta ejecución
+        if: always()
+        run: kind delete cluster --name treecify-lab
+
