@@ -8,7 +8,9 @@ for command in "$ENGINE" kind kubectl node; do command -v "$command" >/dev/null 
 if kind get clusters | grep -qx treecify-lab; then
   echo "Ya existe treecify-lab. Este script solo crea un clúster de laboratorio nuevo."; exit 1
 fi
-"$ENGINE" build -t treecify-lab:1.0 .
+BUILD_OPTIONS=()
+if [[ "$ENGINE" == podman ]]; then BUILD_OPTIONS+=(--format docker); fi
+"$ENGINE" build "${BUILD_OPTIONS[@]}" -t treecify-lab:1.0 .
 if [[ "$ENGINE" == podman ]]; then export KIND_EXPERIMENTAL_PROVIDER=podman; fi
 kind create cluster --name treecify-lab --config kind-config.yaml
 if [[ "$ENGINE" == docker ]]; then

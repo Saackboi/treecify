@@ -10,7 +10,9 @@ DEST="evidencias/$ENGINE"
 mkdir -p "$DEST"
 "$ENGINE" --version | tee "$DEST/version.txt"
 "$ENGINE" info --format json > "$DEST/info.json"
-"$ENGINE" build -t treecify-lab:1.0 . 2>&1 | tee "$DEST/build.txt"
+BUILD_OPTIONS=()
+if [[ "$ENGINE" == podman ]]; then BUILD_OPTIONS+=(--format docker); fi
+"$ENGINE" build "${BUILD_OPTIONS[@]}" -t treecify-lab:1.0 . 2>&1 | tee "$DEST/build.txt"
 NAME="treecify-lab-$ENGINE"
 if "$ENGINE" container exists "$NAME" 2>/dev/null || "$ENGINE" inspect "$NAME" >/dev/null 2>&1; then
   echo "Ya existe $NAME. Revise y retire únicamente el contenedor de laboratorio antes de repetir."; exit 1
@@ -18,7 +20,7 @@ fi
 export JWT_SECRET="$(node -e "console.log(require('crypto').randomBytes(48).toString('hex'))")"
 trap '"$ENGINE" rm -f "$NAME" >/dev/null 2>&1 || true; unset JWT_SECRET' EXIT
 "$ENGINE" run -d --name "$NAME" --read-only --user 10001:10001 --cap-drop ALL --security-opt no-new-privileges --pids-limit 100 --memory 512m --cpus 1 \
-  --tmpfs /tmp:rw,noexec,nosuid,size=16m --tmpfs /data:rw,nosuid,uid=10001,gid=10001,size=64m \
+  --tmpfs /tmp:rw,noexec,nosuid,size=16m --tmpfs /data:rw,noexec,nosuid,mode=1777,size=64m \
   -p 127.0.0.1:3001:3001 -e JWT_SECRET -e PUBLIC_URL=http://localhost:3001 treecify-lab:1.0
 npm run smoke | tee "$DEST/smoke.txt"
 "$ENGINE" logs "$NAME" > "$DEST/logs.jsonl" 2>&1

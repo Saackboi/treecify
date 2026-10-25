@@ -9,7 +9,7 @@ versions={}
 for key, repo in repos.items():
     data,_=get('https://api.github.com/repos/'+repo+'/releases/latest')
     versions[key]=data['tag_name']
-images={'node':('library/node','24.22.1-bookworm-slim'), 'gitleaks':('zricethezav/gitleaks', versions['gitleaks']), 'trivy':('aquasec/trivy',versions['trivy'].lstrip('v')), 'conftest':('openpolicyagent/conftest',versions['conftest']), 'semgrep':('semgrep/semgrep',versions['semgrep'].lstrip('v'))}
+images={'node':('library/node','24.22.1-alpine'), 'gitleaks':('zricethezav/gitleaks', versions['gitleaks']), 'trivy':('aquasec/trivy',versions['trivy'].lstrip('v')), 'conftest':('openpolicyagent/conftest',versions['conftest']), 'semgrep':('semgrep/semgrep',versions['semgrep'].lstrip('v'))}
 pins={}
 for key,(repo,tag) in images.items():
     try:
