@@ -1,0 +1,96 @@
+name: devsecops
+on:
+  push:
+    branches: ["main", "lab/**"]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: devsecops-${{ github.ref }}
+  cancel-in-progress: true
+defaults:
+  run:
+    shell: bash
+jobs:
+  controles-de-codigo:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24.22.1"
+          cache: npm
+      - name: Dependencias reproducibles
+        run: npm ci --no-audit --no-fund
+      - name: Pruebas de seguridad y compilación
+        run: |
+          npm test
+          npm run lint:server
+          npm run build
+      - name: SCA npm (bloquea HIGH y CRITICAL, incluidas dependencias de desarrollo)
+        run: npm audit --audit-level=high
+      - name: Secretos en archivos e historial
+        run: |
+          docker run --rm -v "$PWD:/repo:ro" zricethezav/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f dir /repo --config /repo/.gitleaks.toml --redact --exit-code 1
+          docker run --rm -v "$PWD:/repo:ro" -e GIT_CONFIG_COUNT=1 -e GIT_CONFIG_KEY_0=safe.directory -e GIT_CONFIG_VALUE_0=/repo zricethezav/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f git /repo --config /repo/.gitleaks.toml --log-opts="--all" --redact --exit-code 1
+      - name: SAST (OWASP y reglas locales, cualquier hallazgo bloquea)
+        run: |
+          docker run --rm -v "$PWD:/src:ro" --workdir /src semgrep/semgrep:1.182.0@sha256:4a34048c04fef049f71665047f074cffb00cc3d89482f965a5cd151d589237af semgrep scan --config p/owasp-top-ten --config .semgrep.yml --error --metrics=off --disable-version-check --exclude tmp --exclude evidencias .
+      - name: SCA y configuración IaC (HIGH y CRITICAL)
+        run: |
+          docker run --rm -v "$PWD:/repo:ro" aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c fs --include-dev-deps --scanners vuln,misconfig --severity HIGH,CRITICAL --exit-code 1 --skip-dirs /repo/tmp --skip-dirs /repo/node_modules --skip-dirs /repo/evidencias /repo
+      - name: Políticas positivas y negativas
+        run: bash scripts/policy-check.sh
+
+  imagen:
+    needs: controles-de-codigo
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24.22.1"
+      - name: Construir y exportar imagen de esta ejecución
+        run: |
+          mkdir -p tmp evidencias/ci
+          docker build -t treecify-lab:ci .
+          docker save treecify-lab:ci -o tmp/image.tar
+          docker image inspect treecify-lab:ci --format '{{.Id}}' > evidencias/ci/image-id.txt
+      - name: SBOM CycloneDX y análisis de componentes
+        run: |
+          docker run --rm -v "$PWD:/repo" aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c image --input /repo/tmp/image.tar --format cyclonedx --output /repo/evidencias/ci/sbom.cdx.json
+          node scripts/sbom-summary.mjs evidencias/ci/sbom.cdx.json > evidencias/ci/sbom-summary.json
+      - name: Escaneo de imagen (HIGH y CRITICAL, sin omitir vulnerabilidades sin parche)
+        run: |
+          docker run --rm -v "$PWD:/repo" aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c image --input /repo/tmp/image.tar --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --format json --output /repo/evidencias/ci/image-scan.json
+      - name: Analizar vulnerabilidades del SBOM
+        if: ${{ !cancelled() }}
+        run: |
+          docker run --rm -v "$PWD:/repo" aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c sbom --severity HIGH,CRITICAL --exit-code 1 --format json --output /repo/evidencias/ci/sbom-scan.json /repo/evidencias/ci/sbom.cdx.json
+      - name: Humo con filesystem de solo lectura y usuario sin privilegios
+        run: |
+          # Ephemeral, generated for this isolated runner; no repository secret needed.
+          export JWT_SECRET="$(node -e "console.log(require('crypto').randomBytes(48).toString('hex'))")"
+          echo "::add-mask::$JWT_SECRET"
+          docker run -d --name treecify-ci --read-only --user 10001:10001 --cap-drop ALL --security-opt no-new-privileges --pids-limit 100 --memory 512m --cpus 1 --tmpfs /tmp:rw,noexec,nosuid,size=16m --tmpfs /data:rw,nosuid,uid=10001,gid=10001,size=64m -p 127.0.0.1:3001:3001 -e JWT_SECRET -e PUBLIC_URL=http://localhost:3001 treecify-lab:ci
+          npm run smoke
+      - name: Logs y limpieza
+        if: always()
+        run: |
+          docker logs treecify-ci > evidencias/ci/container.log 2>&1 || true
+          docker rm -f treecify-ci || true
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: security-sbom-${{ github.run_id }}-${{ github.sha }}
+          path: evidencias/ci/
+          retention-days: 14
+          if-no-files-found: warn

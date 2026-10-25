@@ -1,0 +1,9 @@
+title = "Treecify: defaults + deliberate lab canary"
+[extend]
+useDefault = true
+
+[[rules]]
+id = "treecify-lab-canary"
+description = "Deliberately false credential for LAB-TE2-03"
+regex = '''LAB_FAKE_CREDENTIAL_[A-Z0-9]{32}'''
+keywords = ["LAB_FAKE_CREDENTIAL_"]

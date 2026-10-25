@@ -23,6 +23,8 @@ export default function FormInputs({ profile, title, setTitle, url, setUrl, hand
                             <input
                                 type="text"
                                 placeholder="Ej. Ver Menú PDF"
+                                maxLength={100}
+                                required
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                                 className="w-full p-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
@@ -34,6 +36,9 @@ export default function FormInputs({ profile, title, setTitle, url, setUrl, hand
                             <input
                                 type="text"
                                 placeholder="https://..."
+                                inputMode="url"
+                                maxLength={2048}
+                                required
                                 value={url}
                                 onChange={(e) => setUrl(e.target.value)}
                                 className="w-full p-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none transition bg-white" />

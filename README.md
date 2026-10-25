@@ -1,53 +1,80 @@
-# 🌳 Treecify
+# Treecify · LAB-TE2-03
+Copia de laboratorio de [Saackboi/treecify](https://github.com/Saackboi/treecify),
+Ruta A: React + Express + SQLite. Trabajo local en la rama `lab/devsecops`.
+Solo datos ficticios y entornos locales. No utiliza rutas ni volúmenes del servidor activo.
 
-![Version](https://img.shields.io/badge/version-3.1.0-indigo.svg) ![Stack](https://img.shields.io/badge/stack-MERN_Lite-green.svg) ![Docker](https://img.shields.io/badge/docker-multi__arch-2496ED.svg)
+## Ejecutar sin contenedor
+Requiere Node **24.22.1** y npm. En PowerShell, use `npm.cmd` si la política de ejecución bloquea `npm.ps1`.
 
-**Treecify** es una plataforma Micro-SaaS "Self-Hosted" diseñada para que negocios locales y creadores gestionen su identidad digital. Permite crear una página de aterrizaje ("Link in Bio") totalmente personalizada, ultra-rápida y generar códigos QR dinámicos para el mundo físico.
+```powershell
+Copy-Item .env.example .env
+# Genere una clave nueva y copie el resultado en JWT_SECRET dentro de .env:
+node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+npm.cmd ci
+npm.cmd test
+npm.cmd run lint
+npm.cmd run build
+npm.cmd start
+```
 
-La versión **v3.0** introduce personalización visual completa, gestión de avatares y una arquitectura Docker blindada para producción en entornos mixtos (AMD64/ARM64).
+En otra terminal: `npm.cmd run smoke`. El humo crea un usuario ficticio con sufijo
+aleatorio. La aplicación abre en http://localhost:3001; la contraseña requiere
+12 caracteres como mínimo y 72 bytes como máximo.
 
----
+Configuración: `PORT`, `PUBLIC_URL`, `CORS_ORIGINS`, `JWT_SECRET`, `DB_PATH`,
+`UPLOAD_DIR`, `INSTANCE_NAME`. Una clave ausente, corta o de ejemplo impide arrancar.
+No copie el valor histórico del repositorio.
 
-## ✨ Novedades v3.0 & Características
+## Contrato HTTP
+| Ruta | Acceso | Resultado |
+|---|---|---|
+| GET /health | Público | 200, estado e instancia |
+| GET /ready | Público | 200 si SQLite responde, 503 en fallo |
+| GET /api/resumen | JWT Bearer HS256 | Conteo de enlaces del sujeto + instancia; 401 sin token válido |
+| GET /metrics | Público, solo laboratorio | Contador Prometheus por ruta/código/instancia |
+| POST /api/auth/register | Público con límite por IP | Usuario ficticio, contraseña bcrypt y JWT de una hora |
+| POST /api/auth/login | Público con límite por IP | JWT con issuer y audience |
+| /api/links y /api/user | JWT, salvo perfil público | Datos acotados al usuario y validación de entradas |
 
-![Admin Dashboard](https://i.postimg.cc/zfXy7gbd/image.png)
-![Admin Dashboard](https://i.postimg.cc/FFJ7TmR6/image.png)
+Los avatares admiten PNG/JPEG/WebP hasta 2 MiB y 16 millones de píxeles de entrada:
+se decodifican, redimensionan y recodifican a WebP sin metadatos antes de publicarlos.
+Los nombres son UUID; no se usa el nombre recibido como ruta. CSP restringe scripts
+al mismo origen y permite estilos inline que usa la interfaz actual.
 
-- **🎨 Personalización Total:** Nuevo **Panel de Diseño**. Elige entre temas predefinidos o personaliza colores de fondo, botones y textos manualmente.
-- **📸 Gestión de Avatares:** Subida de imágenes de perfil con **Multer**. Incluye limpieza automática de archivos antiguos para ahorrar espacio y URLs anti-caché.
-- **📱 Mobile-First & Instantáneo:** Renderizado optimizado para carga < 1s en móviles.
-- **⚡ Dashboard Reactivo:** Vista previa en tiempo real. Los cambios de foto y colores se reflejan al instante sin recargar.
-- **🗄️ Persistencia Blindada:** Base de datos **SQLite** y sistema de archivos local para imágenes. Tus datos sobreviven a reinicios.
-- **🐳 Docker Multi-Arch:** Construido sobre `node:slim` con soporte nativo para **x86_64** y **ARM64** (Raspberry Pi, CasaOS), solucionando problemas de compilación nativa (SQLite).
-- **🔒 Seguridad Mejorada:** Validación de sesión robusta, manejo de `Mixed Content` vía variables de entorno y limpieza de localStorage en tokens expirados.
+## Docker, Podman, Kubernetes y pipeline
+- `docker compose up --build -d`: datos nuevos en volumen **treecify-lab_lab-data**, puerto loopback 3001.
+- `bash scripts/containers.sh docker` y `bash scripts/containers.sh podman`: comparaciones reales con datos efímeros; guardan evidencia saneada.
+- `bash scripts/policy-check.sh`: 13 pruebas Rego y validación de Dockerfile/Kubernetes.
+- `bash scripts/kind-up.sh docker` o `bash scripts/kind-up.sh podman`: clúster nuevo **treecify-lab**, secreto generado fuera de Git.
+- `bash scripts/k8s-experiments.sh`: eliminación de pod, imagen inexistente/rollback, 5 réplicas y retorno, tráfico, logs y métricas por réplica.
 
----
+Use Bash de WSL o Git Bash para los scripts. Podman en Windows requiere una máquina
+Linux iniciada. El proveedor Compose de Podman es opcional y debe verificarse aparte.
+Los scripts Kubernetes fijan contexto y namespace; no dependen del contexto activo.
 
-## 🛠️ Stack Tecnológico
+**SQLite y avatares no se comparten entre pods.** Kubernetes usa `emptyDir`: los
+datos ficticios se pierden al reemplazar un pod. La prueba de reparto usa un sujeto
+JWT sintético y consultas sin escritura. No demuestra alta disponibilidad de datos.
 
-- **Frontend:** React + Vite + Tailwind CSS (v3).
-- **Backend:** Node.js + Express (ES Modules).
-- **Gestión de Archivos:** Multer (Configuración modular).
-- **Base de Datos:** SQLite3 (Driver `sqlite3` compilado para multi-arquitectura).
-- **Infraestructura:** Docker + Docker Compose (Soporte HTTPS Proxy).
+## Recorrido y estado verificable
+- [Guía técnica y trazabilidad](docs/TRAZABILIDAD.md)
+- [Operación, evidencias y fallos controlados](docs/LABORATORIO.md)
+- [Inventario y gestión de secretos](docs/SEGURIDAD.md)
+- [Resultados y pendientes de esta implementación](docs/VALIDACION.md)
+- [Comparación Docker–Podman para completar con resultados](docs/COMPARACION-MOTORES.md)
 
----
+El workflow ejecuta pruebas, Gitleaks, Semgrep, npm audit, Trivy, Conftest,
+construcción, humo endurecido, SBOM de imagen CycloneDX y análisis del SBOM.
+Falla ante secretos, hallazgos SAST, políticas incumplidas o vulnerabilidades
+HIGH/CRITICAL; no usa `continue-on-error` en controles. Las acciones usan SHA completo
+y las imágenes externas digest verificado. Dependabot revisa npm, Actions y Docker.
 
-## 📂 Arquitectura del Proyecto
+**Bloqueo conocido del pipeline:** Gitleaks encuentra dos exposiciones de la antigua
+clave JWT en el commit original `0294c5c14a17302e85b2792a505f95134956328b`.
+El árbol actual está limpio; el historial sigue bloqueando el control hasta su
+saneamiento. No se añadieron excepciones para ocultarlo ni se reescribió el historial remoto.
 
-Estructura modularizada para separar configuración, rutas y lógica de negocio.
-
-```bash
-treecify/
-├── .dockerignore        # Ignora uploads locales y node_modules
-├── docker-compose.yml   # Orquestación con volúmenes persistentes
-├── Dockerfile           # Build Multi-Stage basado en Debian Slim
-├── vite.config.js       # Proxy reverso para desarrollo
-├── uploads/             # Carpeta de persistencia de imágenes (Mapeada en Docker)
-├── src/
-│   ├── config/          # Configuraciones externas
-│   ├── components/      # UI Modular
-│   ├── hooks/           # Custom Hooks (useDashboard)
-│   ├── server/          # Backend Node.js
-│   └── App.jsx          # Estado Global
-└── package.json
+La disposición original del código se conserva para compilar la aplicación:
+`sistema/` y `servicio/` explican su correspondencia con la estructura del enunciado.
+El informe PDF, diagramas, capturas de Actions, aportes individuales y defensa
+son entregables separados; este repositorio prepara su recorrido técnico.

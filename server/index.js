@@ -1,51 +1,22 @@
-import 'dotenv/config'
-import express from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import path from 'path';
-import linksRouter from './routes/links.routes.js'
-import authRouter from './routes/auth.route.js'
-import userRouter from './routes/user.route.js'
+import { pathToFileURL } from 'node:url';
+import { config } from './config/env.js';
+import { app } from './app.js';
+import db, { ready } from './db.js';
+import { log } from './observability.js';
 
-const app = express();
-const PORT = process.env.PORT; // Corremos el backend 
-
-// --- MIDDLEWARE ---
-// Habilitar CORS para desarrollo (ajustar en producción)
-app.use(cors());
-// Helmet ayuda a proteger la app de vulnerabilidades web conocidas
-// Configuramos para permitir cargar imagenes y scripts (necesario para React)
-app.use(helmet({
-    contentSecurityPolicy: false
-}));
-// Parsear JSON (vital para recibir datos de formularios React)
-app.use(express.json());
-
-// --- RUTAS (API Endpoints) ---
-app.use('/api/links', linksRouter) // Todo lo que empiece por /api/links lo va a manejar este archivo
-app.use('/api/auth', authRouter) // Todo lo que empiece por /api/auth lo va a manejar este archivo
-app.use('/api/user', userRouter) // Todo lo que empiece por /api/user lo va a manejar este archivo
-
-// Servir carpeta uploads públicamente
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads'), {
-    setHeaders: (res, path, stat) => {
-        res.set('Cross-Origin-Resource-Policy', 'cross-origin');
-    }
-}));
-
-// --- SERVIDOR FRONTEND ---
-// DECIRLE A EXPRESS DONDE ESTA LA CARPETA 'dist'
-const distPath = path.resolve(process.cwd(), 'dist')
-app.use(express.static(distPath))
-
-// "CATCH-ALL" Route
-// Si alguien entra a "/Ver" con esto le decimos: "Manda al index.html" y le deja el trabajo a react
-app.get(/.*/, (req, res) => {
-    res.sendFile(path.join(distPath, 'index.html'))
-})
-
-// --- INICIO DEL SERVIDOR ---
-app.listen(PORT, () => {
-    console.log(`Servidor API corriendo en http://localhost:${PORT}`);
-    console.log(`Listo para conectar con React`);
-});
+export async function start() {
+    await ready;
+    const server = app.listen(config.port, '0.0.0.0', () => log('info', 'server_started', { port: server.address().port }));
+    server.on('error', () => { log('error', 'server_failed'); process.exitCode = 1; db.close(); });
+    const stop = () => {
+        log('info', 'server_stopping');
+        server.close(() => db.close());
+        setTimeout(() => process.exit(1), 10000).unref();
+    };
+    process.once('SIGTERM', stop);
+    process.once('SIGINT', stop);
+    return server;
+}
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+    start().catch(() => { log('error', 'database_initialization_failed'); process.exit(1); });
+}

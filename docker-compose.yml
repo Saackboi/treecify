@@ -1,27 +1,30 @@
-version: '3.8'
-
+name: treecify-lab
 services:
-  qr-app:
-    # 1. Construcción: Le dice "Busca el Dockerfile en esta misma carpeta (.)"
-    build: . 
-    
-    # 2. Nombre del contenedor (para identificarlo fácil con 'docker ps')
-    container_name: qr-saas-container
-    
-    # 3. Política de Reinicio: Si falla o se reinicia el servidor, revive solo.
-    restart: always
-    
-    # 4. Puertos: "El puerto 80 del servidor va al 3001 de la app"
+  api:
+    build:
+      context: .
+    image: treecify-lab:1.0
+    restart: "no"
     ports:
-      - "2465:3001"
-      
-    # 5. Persistencia: "Guarda el archivo links.db en un volumen seguro"
-    volumes:
-      - ./links.db:/app/links.db
-      - ./uploads:/app/uploads
-    
-    # 6. Variables de entorno
+      - "127.0.0.1:3001:3001"
     environment:
-      - NODE_ENV=production
-      - JWT_SECRET=EXTERNAL
-      - PUBLIC_URL=usa_tu_direccion_publica_aqui 
+      NODE_ENV: production
+      PORT: "3001"
+      JWT_SECRET: ${JWT_SECRET:?Defina JWT_SECRET de laboratorio en .env}
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:3001}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3001}
+      DB_PATH: /data/links.db
+      UPLOAD_DIR: /data/uploads
+    user: "10001:10001"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+    volumes:
+      - lab-data:/data
+    pids_limit: 100
+    mem_limit: 512m
+    cpus: 1.0
+volumes:
+  lab-data:

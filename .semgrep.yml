@@ -1,0 +1,18 @@
+rules:
+  - id: treecify-no-disabled-csp
+    languages: [javascript]
+    severity: ERROR
+    message: CSP no puede estar desactivada.
+    pattern: "helmet({..., contentSecurityPolicy: false, ...})"
+  - id: treecify-no-open-cors
+    languages: [javascript]
+    severity: ERROR
+    message: Declare orígenes CORS explícitos.
+    pattern: cors()
+  - id: treecify-no-eval
+    languages: [javascript]
+    severity: ERROR
+    message: No ejecutar texto de entrada como código.
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: new Function(...)

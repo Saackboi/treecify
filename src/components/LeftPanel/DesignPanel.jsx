@@ -98,7 +98,7 @@ export default function DesignPanel({ profile, onSave }) {
                             <input
                                 type="file"
                                 className="hidden"
-                                accept="image/*"
+                                accept="image/png,image/jpeg,image/webp"
                                 onChange={handleImageUpload}
                             />
                         </label>
@@ -110,6 +110,7 @@ export default function DesignPanel({ profile, onSave }) {
                     <label className="block text-sm font-bold text-gray-700 mb-2">Biografía</label>
                     <textarea
                         name="bio"
+                        maxLength={500}
                         rows="3"
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none text-sm"
                         placeholder="Cuéntanos sobre ti..."

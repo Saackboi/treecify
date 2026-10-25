@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: treecify
+  namespace: treecify-lab
+  labels: { app: treecify }
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxSurge: 1, maxUnavailable: 0 }
+  selector:
+    matchLabels: { app: treecify }
+  template:
+    metadata:
+      labels: { app: treecify }
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 15
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: api
+          # Local, explicitly preloaded in kind. Never pull this tag from a registry.
+          image: treecify-lab:1.0
+          imagePullPolicy: Never
+          ports:
+            - { name: http, containerPort: 3001 }
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: PORT
+              value: "3001"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef: { name: treecify-secret, key: JWT_SECRET }
+            - name: INSTANCE_NAME
+              valueFrom:
+                fieldRef: { fieldPath: metadata.name }
+            - { name: PUBLIC_URL, value: "http://localhost:8080" }
+            - { name: CORS_ORIGINS, value: "http://localhost:8080" }
+            - { name: DB_PATH, value: /data/links.db }
+            - { name: UPLOAD_DIR, value: /data/uploads }
+          readinessProbe:
+            httpGet: { path: /ready, port: http }
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /health, port: http }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          startupProbe:
+            httpGet: { path: /ready, port: http }
+            periodSeconds: 2
+            failureThreshold: 30
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { cpu: 500m, memory: 512Mi }
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: [ALL] }
+          volumeMounts:
+            - { name: data, mountPath: /data }
+            - { name: tmp, mountPath: /tmp }
+      volumes:
+        # Per-pod fictitious state; deliberately no shared SQLite filesystem.
+        - name: data
+          emptyDir: { sizeLimit: 64Mi }
+        - name: tmp
+          emptyDir: { medium: Memory, sizeLimit: 16Mi }

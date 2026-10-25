@@ -15,7 +15,7 @@ export default function PageRegister() {
                 <p>Esta instancia es una prueba de la aplicación.</p>
                 <br/>
                 <p>Por tu seguridad, <b>NO utilices contraseñas reales</b> que uses en otros sitios (como Gmail, Facebook, o Bancos).</p>
-                <p>Puedes utilizar datos ficticios o contraseñas simples (ej: 123456).</p>
+                <p>Utiliza datos ficticios y una contraseña de prueba de al menos 12 caracteres.</p>
             `,
             icon: 'info',
             confirmButtonText: 'Entendido, usaré datos de prueba',
@@ -122,6 +122,9 @@ export default function PageRegister() {
                                 id="username"
                                 type="text"
                                 name="username"
+                                minLength={3}
+                                maxLength={32}
+                                pattern="[a-zA-Z0-9_-]{3,32}"
                                 value={formData.username}
                                 onChange={handleChange}
                                 required
@@ -155,9 +158,11 @@ export default function PageRegister() {
                             <input placeholder='Ingresa tu contraseña'
                                 id="password"
                                 type="password"
+                                minLength={12}
+                                maxLength={72}
                                 name="password"
                                 required
-                                autoComplete="current-password"
+                                autoComplete="new-password"
                                 value={formData.password}
                                 onChange={handleChange}
                                 className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
@@ -172,9 +177,11 @@ export default function PageRegister() {
                             <input placeholder='Vuelve a ingresar tu contraseña'
                                 id="confirmPassword"
                                 type="password"
+                                minLength={12}
+                                maxLength={72}
                                 name="confirmPassword"
                                 required
-                                autoComplete="current-password"
+                                autoComplete="new-password"
                                 value={formData.confirmPassword}
                                 onChange={handleChange}
                                 className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
