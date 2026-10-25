@@ -54,7 +54,7 @@ La copia actual sí elimina ambos valores. Una limpieza coordinada requiere:
 
 Borrar una línea o hacer revert NO elimina un secreto de commits anteriores.
 Se saneó únicamente lab/devsecops: el valor se reemplazó por un marcador en los commits históricos.
-main y las etiquetas originales permanecen intactas. El escaneo completo de HEAD pasa
+El historial original de main y sus etiquetas no se reescribió. Posteriormente se autorizó añadir solo la configuración Dependabot en main, sin tocar la aplicación. El escaneo completo de HEAD pasa
 sin excepciones; el escaneo de todas las referencias sigue señalando el legado original.
 Una PR debe comprobar la cabeza propuesta, no un merge sintético con el historial
 original aún expuesto. No integrar esta rama hasta coordinar la limpieza de main.

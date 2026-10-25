@@ -16,6 +16,7 @@ Fecha: 25 de octubre de 2026, America/Bogota.
 | Rego | 6 pruebas Docker y 7 Kubernetes aprobadas; archivos reales pasan; violaciones detectadas |
 | Secretos | Árbol y todos los commits de HEAD de laboratorio pasan Gitleaks sin allowlist |
 | Historial original | main y etiquetas no se reescribieron; la clave antigua requiere rotación si se utilizó |
+| Dependabot | Archivo añadido a main con autorización en 3d99cca; aplicación de main sin cambios |
 | GitHub Actions | Código, imagen y Kubernetes ejecutados y verdes |
 | Fallos controlados | Tres rojos por secreto ficticio, política propia y SAST; tres correcciones verdes |
 | Imagen y SBOM | CycloneDX 1.7 con 137 componentes (136 bibliotecas y un SO), 136 PURL; cero HIGH/CRITICAL en imagen y SBOM |
@@ -59,4 +60,4 @@ las restricciones de Docker Compose, Kubernetes o CI.
 - Informe PDF, diagramas, aportes individuales y defensa siguen siendo entregables del grupo.
 
 Todos los cambios y pruebas se hicieron en Workspace 2 y entornos de laboratorio.
-Workspace 1 solo se leyó. No se accedió al servidor activo ni se modificó main.
+Workspace 1 solo se leyó. No se accedió al servidor activo. Con autorización se añadió únicamente .github/dependabot.yml a main; su aplicación e historial original no se reescribieron.

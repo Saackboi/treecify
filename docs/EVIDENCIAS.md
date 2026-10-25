@@ -18,7 +18,7 @@ Hay dos clases de captura, identificadas por nombre:
 La fuga es siempre ficticia. Para corregirla se reemplazó solo el último commit
 de lab/failure-secret, porque un commit de borrado conservaría el canario en HEAD.
 Las ramas de política y SAST conservan el commit roto y el correctivo.
-Las tres ramas están corregidas; main no cambió.
+Las tres ramas están corregidas. Con autorización posterior se añadió únicamente .github/dependabot.yml a main para activar sus actualizaciones; la aplicación no cambió.
 
 ## Hallazgos adicionales corregidos
 | Hallazgo real | Evidencia | Cambio |
@@ -52,3 +52,6 @@ Para el informe de 6–10 páginas seleccionar las capturas más claras y remiti
 las restantes al paquete de evidencias. No interpretar una captura como una garantía
 de seguridad absoluta ni presentar la ejecución del runner como hecha en Windows.
 Los umbrales de alertas y el diagrama de trazas son diseño/documentación aparte.
+
+## Dependabot en la rama predeterminada
+[Commit 3d99cca](https://github.com/Saackboi/treecify/commit/3d99cca465fa0e87f1889c8ded2483e19016960c): contiene exclusivamente .github/dependabot.yml. Se verificó mediante API y diff contra el main anterior.
